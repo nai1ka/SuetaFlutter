@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "276945936302",
+    "project_id": "suetaflutter-a4892",
+    "storage_bucket": "suetaflutter-a4892.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:276945936302:android:c2857b51fa28662f77b23f",
+        "android_client_info": {
+          "package_name": "ru.ndevelop.test_flutter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "276945936302-0pa22j9v7oj8875t17ntff06oplnbjl4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBOXz7dQGa2F3BHTIGWkmYR85qDu8Ccodc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "276945936302-0pa22j9v7oj8875t17ntff06oplnbjl4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
