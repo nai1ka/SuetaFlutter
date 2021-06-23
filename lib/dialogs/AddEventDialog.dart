@@ -3,7 +3,10 @@ import 'dart:ffi';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:geoflutterfire/geoflutterfire.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+
+final geo = Geoflutterfire();
 
 class AddEventDialog extends StatefulWidget {
   const AddEventDialog({Key? key}) : super(key: key);
@@ -14,7 +17,7 @@ class AddEventDialog extends StatefulWidget {
 
 class _AddEventDialogState extends State<AddEventDialog> {
   DateTime selectedDate = DateTime.now();
-  String eventName = "New Event";
+  String eventName = "";
   LatLng? selectedPosition;
   List markers = [];
 
@@ -47,8 +50,8 @@ class _AddEventDialogState extends State<AddEventDialog> {
                 textAlign: TextAlign.left,
               ),
               TextField(
+
                 decoration: InputDecoration(hintText: "Название"),
-                controller: myController,
                 onSubmitted: (text) {
                   eventName = text;
                 },
@@ -121,7 +124,7 @@ class _AddEventDialogState extends State<AddEventDialog> {
           title: 'I am a marker',
         ),
         icon:
-        BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueMagenta),
+            BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueMagenta),
       );
 
       if (markers.isNotEmpty)
@@ -133,19 +136,25 @@ class _AddEventDialogState extends State<AddEventDialog> {
 
   Future<void> addUser() {
     // Call the user's CollectionReference to add a new user
-    if (selectedPosition == null || eventName != "") return Future(() {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("Sending Message"),
-      ));
-    });
+print(eventName);
+    if (selectedPosition == null || eventName == "")
+      return Future(() {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("Sending Message"),
+        ));
+      });
     return users
         .add({
-      'eventDate': selectedDate, // John Doe
-      'eventName': eventName,
-      'eventPosition': "selectedPosition!", // Stokes and Sons
-      'eventTime': "4:20",
-      'peopleNumber': 5 // 42
-    })
+          'eventDate': selectedDate, // John Doe
+          'eventName': eventName,
+          'eventPosition': geo
+              .point(
+                  latitude: selectedPosition!.latitude,
+                  longitude: selectedPosition!.longitude)
+              .data, // Stokes and Sons
+          'eventTime': "4:20",
+          'peopleNumber': 5 // 42
+        })
         .then((value) => print("User Added"))
         .catchError((error) => print("Failed to add user: $error"));
   }

@@ -1,8 +1,11 @@
+
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'dart:async';
+import 'package:test_flutter/dialogs/AddEventDialog.dart';
+import 'package:test_flutter/eventList/events_widget.dart';
+
 
 import 'package:test_flutter/map/map_widget.dart';
+import 'package:test_flutter/profile/profile_widget.dart';
 
 class MainPage extends StatefulWidget {
 
@@ -24,6 +27,8 @@ class MainPage extends StatefulWidget {
 
 class MainPageState extends State<MainPage> {
   int _selectedIndex = 0;
+  List pages = [MapPage(),EventListWidget(),ProfileWidget()];
+  bool isFabVisible = true;
 
 
   @override
@@ -36,8 +41,15 @@ class MainPageState extends State<MainPage> {
     // than having to individually change instances of widgets.
     return Scaffold(
 
-        body: MapPage() ,
+        body: pages[_selectedIndex] ,
       bottomNavigationBar: buildBottomNavigationBar(),
+      floatingActionButton: Visibility(child:  FloatingActionButton.extended(
+          onPressed: (){showDialog(context: context, builder: (BuildContext context){return AddEventDialog();});},
+      label: Text('Суета!'),
+      icon: Icon(Icons.add),
+    ),
+    visible: isFabVisible,)
+
 
 
     );
@@ -48,6 +60,8 @@ class MainPageState extends State<MainPage> {
       currentIndex: _selectedIndex,
       onTap: (value) {
         setState(() {
+          if(value==2) isFabVisible = false;
+          else isFabVisible = true;
           _selectedIndex = value;
         });
       },
