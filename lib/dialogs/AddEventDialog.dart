@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:geoflutterfire/geoflutterfire.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:test_flutter/models/Event.dart';
 
 final geo = Geoflutterfire();
 
@@ -20,6 +21,7 @@ class _AddEventDialogState extends State<AddEventDialog> {
   String eventName = "";
   LatLng? selectedPosition;
   List markers = [];
+  Event newEvent = Event();
 
   CollectionReference users = FirebaseFirestore.instance
       .collection('core')
@@ -36,7 +38,6 @@ class _AddEventDialogState extends State<AddEventDialog> {
 
   contentBox(context) {
     Completer<GoogleMapController> _controller = Completer();
-    final myController = TextEditingController();
     return Card(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
@@ -53,7 +54,7 @@ class _AddEventDialogState extends State<AddEventDialog> {
 
                 decoration: InputDecoration(hintText: "Название"),
                 onSubmitted: (text) {
-                  eventName = text;
+                  newEvent.eventName = text;
                 },
               ),
               Padding(padding: EdgeInsets.all(10.0)),
@@ -69,6 +70,7 @@ class _AddEventDialogState extends State<AddEventDialog> {
                     markers: Set.from(markers),
                     mapType: MapType.hybrid,
                     onTap: onMapTap,
+
                     initialCameraPosition: CameraPosition(
                       target: LatLng(37.42796133580664, -122.085749655962),
                       zoom: 14.4746,
@@ -92,7 +94,8 @@ class _AddEventDialogState extends State<AddEventDialog> {
                   color: Colors.lightGreen,
                   child: Text("Закончить"),
                   onPressed: () {
-                    addUser();
+                     newEvent.addToFirebase(context, users);
+
                   }),
             ],
           ),
@@ -106,16 +109,15 @@ class _AddEventDialogState extends State<AddEventDialog> {
       firstDate: DateTime(2000),
       lastDate: DateTime(2025),
     );
-    if (picked != null && picked != selectedDate)
+    if (picked != null && picked != newEvent.eventDate)
       setState(() {
-        selectedDate = picked;
+        newEvent.eventDate = picked;
       });
   }
 
   onMapTap(LatLng point) {
     setState(() {
-      selectedPosition = point;
-      print(selectedPosition);
+     newEvent.eventPosition = point;
 
       var tempMarker = Marker(
         markerId: MarkerId(point.toString()),
@@ -124,7 +126,7 @@ class _AddEventDialogState extends State<AddEventDialog> {
           title: 'I am a marker',
         ),
         icon:
-            BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueMagenta),
+            BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
       );
 
       if (markers.isNotEmpty)
@@ -134,28 +136,5 @@ class _AddEventDialogState extends State<AddEventDialog> {
     });
   }
 
-  Future<void> addUser() {
-    // Call the user's CollectionReference to add a new user
-print(eventName);
-    if (selectedPosition == null || eventName == "")
-      return Future(() {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("Sending Message"),
-        ));
-      });
-    return users
-        .add({
-          'eventDate': selectedDate, // John Doe
-          'eventName': eventName,
-          'eventPosition': geo
-              .point(
-                  latitude: selectedPosition!.latitude,
-                  longitude: selectedPosition!.longitude)
-              .data, // Stokes and Sons
-          'eventTime': "4:20",
-          'peopleNumber': 5 // 42
-        })
-        .then((value) => print("User Added"))
-        .catchError((error) => print("Failed to add user: $error"));
-  }
+
 }

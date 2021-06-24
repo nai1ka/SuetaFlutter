@@ -21,11 +21,7 @@ class _MapPageState extends State<MapPage> {
     zoom: 14.4746,
   );
 
-  static final CameraPosition _kLake = CameraPosition(
-      bearing: 192.8334901395799,
-      target: LatLng(37.43296265331129, -122.08832357078792),
-      tilt: 59.440717697143555,
-      zoom: 19.151926040649414);
+ 
 
   @override
   Widget build(BuildContext context) {
@@ -61,6 +57,7 @@ class _MapPageState extends State<MapPage> {
         markers.add(
             Marker(
                 markerId: MarkerId(document.id),
+                icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
                 position: LatLng(tempGeoPoint.latitude, tempGeoPoint.longitude),
                 infoWindow: InfoWindow(
                   title: document["eventName"],
