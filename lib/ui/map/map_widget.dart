@@ -2,9 +2,10 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:test_flutter/dialogs/AddEventDialog.dart';
+
 
 class MapPage extends StatefulWidget {
   const MapPage({Key? key}) : super(key: key);
@@ -15,25 +16,32 @@ class MapPage extends StatefulWidget {
 
 class _MapPageState extends State<MapPage> {
   Completer<GoogleMapController> _controller = Completer();
-
+  String? _mapStyle;
   static final CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(37.42796133580664, -122.085749655962),
     zoom: 14.4746,
   );
 
- 
+ @override
+  void initState() {
+   rootBundle.loadString('assets/map_style.txt').then((string) {
+     _mapStyle = string;
+   });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-        body: StreamBuilder<QuerySnapshot>(
+
+        body: SafeArea(child: StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance.collection('core')
                 .doc("events")
                 .collection("Kazan").snapshots(),
             builder:
                 (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
               return GoogleMap(
-                mapType: MapType.hybrid,
+
                 initialCameraPosition: _kGooglePlex,
                 markers:Set<Marker>.of(getEventsMarker(snapshot)),
                 padding: EdgeInsets.fromLTRB(0, 0, 0, 60) +
@@ -42,9 +50,12 @@ class _MapPageState extends State<MapPage> {
                         .padding,
                 onMapCreated: (GoogleMapController controller) {
                   _controller.complete(controller);
+                  controller.setMapStyle(_mapStyle);
+
+
                 },
               );
-            }));
+            })),);
   }
 
 

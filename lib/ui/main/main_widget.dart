@@ -1,12 +1,24 @@
 
 import 'package:flutter/material.dart';
-import 'package:test_flutter/dialogs/AddEventDialog.dart';
-import 'package:test_flutter/eventList/events_widget.dart';
+import 'package:geoflutterfire/geoflutterfire.dart';
+import 'package:test_flutter/ui/dialogs/AddEventDialog.dart';
+import 'package:test_flutter/ui/eventList/events_widget.dart';
+import 'package:test_flutter/ui/map/map_widget.dart';
+import 'package:test_flutter/ui/profile/profile_widget.dart';
 
-
-import 'package:test_flutter/map/map_widget.dart';
-import 'package:test_flutter/profile/profile_widget.dart';
-
+final MaterialColor appColor = MaterialColor(0xFFF9D162, {
+  50:Color.fromRGBO(238, 232, 224, 1.0),
+  100:Color.fromRGBO(236, 227, 200, 1.0),
+  200:Color.fromRGBO(245, 230, 191, 1.0),
+  300:Color.fromRGBO(245, 222, 161, 1.0),
+  400:Color.fromRGBO(245, 214, 130, 1.0),
+  500:Color.fromRGBO(246, 208, 102, 1.0),
+  600:Color.fromRGBO(245, 201, 79, 1.0),
+  700:Color.fromRGBO(248, 198, 60, 1.0),
+  800:Color.fromRGBO(252, 192, 27, 1.0),
+  900:Color.fromRGBO(255, 186, 0, 1.0),
+});
+final geo = Geoflutterfire();
 class MainPage extends StatefulWidget {
 
 
@@ -26,8 +38,8 @@ class MainPage extends StatefulWidget {
 }
 
 class MainPageState extends State<MainPage> {
-  int _selectedIndex = 0;
-  List pages = [MapPage(),EventListWidget(),ProfileWidget()];
+  int selectedIndex = 0;
+  List<Widget> pages = [MapPage(),EventListWidget(),ProfileWidget()];
   bool isFabVisible = true;
 
 
@@ -39,30 +51,35 @@ class MainPageState extends State<MainPage> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
-    return Scaffold(
+    return Theme(data: ThemeData(primarySwatch: appColor,
+    ), child: Scaffold(
 
-        body: pages[_selectedIndex] ,
-      bottomNavigationBar: buildBottomNavigationBar(),
-      floatingActionButton: Visibility(child:  FloatingActionButton.extended(
+        body: IndexedStack(
+          index: selectedIndex,
+          children: pages,
+        ),
+        bottomNavigationBar: buildBottomNavigationBar(),
+        floatingActionButton: Visibility(child:  FloatingActionButton.extended(
           onPressed: (){showDialog(context: context, builder: (BuildContext context){return AddEventDialog();});},
-      label: Text('Суета!'),
-      icon: Icon(Icons.add),
-    ),
-    visible: isFabVisible,)
+          label: Text('Суета!'),
+          icon: Icon(Icons.add),
+        ),
+          visible: isFabVisible,)
 
 
 
-    );
+    ));
   }
   BottomNavigationBar buildBottomNavigationBar() {
     return BottomNavigationBar(
       type: BottomNavigationBarType.fixed,
-      currentIndex: _selectedIndex,
+      currentIndex: selectedIndex,
+
       onTap: (value) {
         setState(() {
           if(value==2) isFabVisible = false;
           else isFabVisible = true;
-          _selectedIndex = value;
+          selectedIndex = value;
         });
       },
       items: [

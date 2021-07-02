@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:test_flutter/dialogs/AddEventDialog.dart';
+import 'package:test_flutter/ui/main/main_widget.dart';
+
 
 class Event {
   String? eventName;
@@ -9,16 +10,15 @@ class Event {
   LatLng? eventPosition;
   int? peopleNumber;
 
-  Future<void> addToFirebase(BuildContext context, CollectionReference users) {
+  Future<void> saveToFirebase(BuildContext context, CollectionReference events) {
     // Call the user's CollectionReference to add a new user
-    print(eventName);
     if (eventPosition == null || eventName == "")
       return Future(() {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text("Sending Message"),
         ));
       });
-    return users
+    return events
         .add({
           'eventDate': eventDate, // John Doe
           'eventName': eventName,
