@@ -17,7 +17,8 @@ class RegistrationWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Theme(
-      data: ThemeData(primarySwatch: Colors.indigo,
+      data: ThemeData(
+        primarySwatch: Colors.indigo,
       ),
       child: Scaffold(
         body: SafeArea(
@@ -43,9 +44,14 @@ class RegistrationWidget extends StatelessWidget {
                 emailField(),
                 Padding(padding: EdgeInsets.only(bottom: 10)),
                 passwordField(),
-                TextButton(onPressed: (){
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => LoginWidget()));
-                }, child: Text("У меня уже есть аккаунт")),
+                TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => LoginWidget()));
+                    },
+                    child: Text("У меня уже есть аккаунт")),
                 Spacer(),
                 Container(
                   width: double.infinity,
@@ -53,8 +59,9 @@ class RegistrationWidget extends StatelessWidget {
                   padding: EdgeInsets.all(10.0),
                   child: ElevatedButton(
                     onPressed: () {
-                      var newUser = UserClass.User(
-                          nameController.text, 1, "Казань", emailController.text);
+                      var newUser =
+                          UserClass.User(nameController.text, 1, "Казань")
+                            ..email = emailController.text;
                       register(newUser, passwordController.text, context);
                       /*newUser.saveToFirebase(
                         context,
@@ -64,10 +71,11 @@ class RegistrationWidget extends StatelessWidget {
                     },
                     child: Text("Зарегистироваться"),
                     style: ButtonStyle(
-                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                            RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10.0),
-                            ))),
+                        shape:
+                            MaterialStateProperty.all<RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ))),
                   ),
                 )
               ],
@@ -76,7 +84,6 @@ class RegistrationWidget extends StatelessWidget {
         ),
       ),
     );
-
   }
 }
 
@@ -174,7 +181,7 @@ register(UserClass.User newUser, String password, BuildContext context) async {
         FirebaseFirestore.instance
             .collection('core')
             .doc("users")
-            .collection("users"),
+            .collection("list"),
         context);
   } else {
     //TODO Update state
@@ -200,6 +207,9 @@ saveToFirestore(UserClass.User user, CollectionReference users,
   return users
       .doc("${user.id}")
       .set(postData)
-      .then((value) => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => MainPage()),(Route<dynamic> route) => false))
+      .then((value) => Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => MainPage()),
+          (Route<dynamic> route) => false))
       .catchError((error) => print("Failed to add user: $error"));
 }

@@ -10,9 +10,10 @@ class User{
   String city = "Казань";
   String email = "";
   String id = "";
+  List<String> friends = [];
 
 
-  User(this.name, this.age, this.city, this.email);
+  User(this.name, this.age, this.city);
 
 
 

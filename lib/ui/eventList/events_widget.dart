@@ -41,69 +41,63 @@ class _EventListWidgetState extends State<EventListWidget> {
                                   builder: (context) =>
                                       EventInfoWidget(events[index])));
                         },
-
-                          child: Card(
-                            color: Color(0xFFFBF1A3),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(26.0),
-                            ),
-                            child: Padding(
-                              padding: EdgeInsets.all(25.0),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Column(
-                                    mainAxisSize: MainAxisSize.max,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        events[index].eventName,
-                                        style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      Padding(
-                                          padding:
-                                              EdgeInsets.only(bottom: 10.0)),
-                                      Text(
-                                          "${events[index].peopleNumber} человек"),
-                                    ],
-                                  ),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      Text("23 октября"),
-                                      Padding(
-                                          padding:
-                                              EdgeInsets.only(bottom: 10.0)),
-                                      FlatButton(
-                                        onPressed: () {
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      EventInfoWidget(
-                                                          events[index])));
-                                        },
-                                        child: Text("Join"),
-                                        color: Color(0xFFB3DDC6),
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10)),
-                                      )
-                                    ],
-                                  )
-                                ],
-                              ),
+                        child: Card(
+                          color: Color(0xFFFBF1A3),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(26.0),
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.all(25.0),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Column(
+                                  mainAxisSize: MainAxisSize.max,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      events[index].eventName,
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    Padding(
+                                        padding: EdgeInsets.only(bottom: 10.0)),
+                                    Text(
+                                        "${events[index].peopleNumber} человек"),
+                                  ],
+                                ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Text("23 октября"),
+                                    Padding(
+                                        padding: EdgeInsets.only(bottom: 10.0)),
+                                    FlatButton(
+                                      onPressed: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    EventInfoWidget(
+                                                        events[index])));
+                                      },
+                                      child: Text("Join"),
+                                      color: Color(0xFFB3DDC6),
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10)),
+                                    )
+                                  ],
+                                )
+                              ],
                             ),
                           ),
-
+                        ),
                       );
                     });
               })),
@@ -120,7 +114,14 @@ class _EventListWidgetState extends State<EventListWidget> {
           ..eventName = document["eventName"]
           ..eventPosition =
               LatLng(tempGeoPoint.latitude, tempGeoPoint.longitude)
-          ..peopleNumber = document["peopleNumber"];
+          ..peopleNumber = document["peopleNumber"]
+          ..id = document.id;
+        List<String> listOfUsers = [];
+        Map<String,dynamic> tempUsers = document["users"];
+        tempUsers.forEach((key, value) {
+          listOfUsers.add(key);
+        });
+        tempEvent.users = listOfUsers;
         events.add(tempEvent);
       });
 

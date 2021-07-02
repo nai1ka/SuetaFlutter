@@ -9,6 +9,8 @@ class Event {
   DateTime? eventDate;
   LatLng? eventPosition;
   int? peopleNumber;
+  String? id;
+  List<String> users = [];
 
   Future<void> saveToFirebase(BuildContext context, CollectionReference events) {
     // Call the user's CollectionReference to add a new user

@@ -1,5 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:test_flutter/models/Event.dart';
+
+final firebase = FirebaseFirestore.instance
+    .collection('core')
+    .doc("events")
+    .collection("Kazan");
+final FirebaseAuth auth = FirebaseAuth.instance;
 
 class EventInfoWidget extends StatelessWidget {
   EventInfoWidget(this.event);
@@ -54,7 +62,7 @@ class EventInfoWidget extends StatelessWidget {
                       ),
                       child: Row(
                         children: [
-                          Text("Ещё ${event!.peopleNumber} человек"),
+                          Text("Ещё ${event!.peopleNumber! - event!.users.length} человек"),
                           Padding(padding: EdgeInsets.only(right: 4.0)),
                           Icon(Icons.people),
                         ],
@@ -67,7 +75,11 @@ class EventInfoWidget extends StatelessWidget {
             height: 100,
             padding: EdgeInsets.all(20.0),
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                firebase.doc(event!.id).set({
+                  "users": {auth.currentUser?.uid: true}
+                }, SetOptions(merge: true));
+              },
               child: Text("Я буду!"),
               style: ButtonStyle(
                   shape: MaterialStateProperty.all<RoundedRectangleBorder>(
