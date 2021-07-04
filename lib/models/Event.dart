@@ -8,7 +8,7 @@ class Event {
   String? eventName;
   DateTime? eventDate;
   LatLng? eventPosition;
-  int? peopleNumber;
+  int peopleNumber = 0;
   String? id;
   List<String> users = [];
 
@@ -30,7 +30,8 @@ class Event {
                   longitude: eventPosition!.longitude)
               .data, // Stokes and Sons
           'eventTime': "4:20",
-          'peopleNumber': 5 // 42
+          'peopleNumber': 5,
+      'users':{}// 42
         })
         .then((value) =>  Navigator.of(context, rootNavigator: true).pop())
         .catchError((error) => print("Failed to add user: $error"));

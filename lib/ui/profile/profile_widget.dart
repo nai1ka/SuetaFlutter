@@ -30,7 +30,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                     AsyncSnapshot<DocumentSnapshot> snapshot) {
                   if (snapshot.connectionState == ConnectionState.done) {
                     Map<String, dynamic> data =
-                    snapshot.data!.data() as Map<String, dynamic>;
+                        snapshot.data!.data() as Map<String, dynamic>;
                     return Container(
                       padding: EdgeInsets.all(20),
                       child: Column(
@@ -57,6 +57,17 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
+                              /*FlatButton(
+                                onPressed: () {},
+                                color: Color(0xFFEAEAEA),
+                                child: Icon(
+                                  Icons.settings,
+                                  size: 24,
+                                  color: Color(0xFF282828),
+                                ),
+                                padding: EdgeInsets.all(2),
+                                shape: CircleBorder(),
+                              ),*/
                               FlatButton(
                                 onPressed: () {},
                                 color: Color(0xFFEAEAEA),
@@ -65,10 +76,10 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                                   size: 24,
                                   color: Color(0xFF282828),
                                 ),
-                                padding: EdgeInsets.all(8),
                                 shape: CircleBorder(),
                               ),
                               FlatButton(
+
                                 onPressed: () {
                                   auth.signOut();
                                   Navigator.pushAndRemoveUntil(
@@ -76,7 +87,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                                       MaterialPageRoute(
                                           builder: (context) =>
                                               RegistrationWidget()),
-                                          (Route<dynamic> route) => false);
+                                      (Route<dynamic> route) => false);
                                 },
                                 color: Color(0xFFEAEAEA),
                                 child: Icon(
@@ -84,7 +95,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                                   size: 24,
                                   color: Color(0xFF282828),
                                 ),
-                                padding: EdgeInsets.all(8),
+
                                 shape: CircleBorder(),
                               )
                             ],
@@ -98,67 +109,69 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                               child: Text("Добавить друзей"),
                               style: ButtonStyle(
                                   shape: MaterialStateProperty.all<
-                                      RoundedRectangleBorder>(
+                                          RoundedRectangleBorder>(
                                       RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(
-                                            10.0),
-                                      ))),
+                                borderRadius: BorderRadius.circular(10.0),
+                              ))),
                             ),
                           ),
                           Divider(
                             thickness: 2,
                           ),
-                          Expanded(child: FutureBuilder<List<UserClass.User>>(
-                            builder: (context, AsyncSnapshot<List<UserClass.User>> friendsSnap) {
+                          Expanded(
+                              child: FutureBuilder<List<UserClass.User>>(
+                            builder: (context,
+                                AsyncSnapshot<List<UserClass.User>>
+                                    friendsSnap) {
                               if (friendsSnap.connectionState ==
-                                  ConnectionState.none &&
+                                      ConnectionState.none &&
                                   friendsSnap.hasData) {
                                 //print('project snapshot data is: ${projectSnap.data}');
                                 return Container();
                               }
-                             return ListView.builder(
+                              return ListView.builder(
                                   padding: const EdgeInsets.all(8),
-                                  itemCount: 1,
-                                  itemBuilder: (BuildContext context,
-                                      int index) {
+                                  itemCount: friendsSnap.data!.length,
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
                                     return InkWell(
                                       customBorder: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(26.0),
+                                        borderRadius:
+                                            BorderRadius.circular(26.0),
                                       ),
-                                      onTap: () {
-
-                                      },
+                                      onTap: () {},
                                       child: Card(
                                         color: Color(0xFFFBF1A3),
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(26.0),
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
                                         ),
                                         child: Padding(
-                                          padding: EdgeInsets.all(25.0),
-                                          child:
-                                          Row(
+                                          padding: EdgeInsets.all(10.0),
+                                          child: Row(
                                             children: [
                                               CircleAvatar(
-                                                radius: 60,
+                                                radius: 30,
                                                 backgroundImage: NetworkImage(
                                                     "https://sun9-35.userapi.com/impg/if9IW4cjk9NqMP8jIDlpnyN4OzYwgI_slPuIRg/eI_lz4ndboQ.jpg?size=1707x1707&quality=96&sign=494450df4ad7064b42ef36684f1580f5&type=album"),
                                               ),
-                                              Text("${friendsSnap.data![index].name}")
-
+                                              Padding(
+                                                  padding: EdgeInsets.only(
+                                                      right: 5)),
+                                              Text(
+                                                "${friendsSnap.data![index].name}",
+                                                style: TextStyle(fontSize: 14),
+                                              )
                                             ],
                                           ),
-
                                         ),
                                       ),
                                     );
                                   });
                             },
-                            future: Utils.getUsersFriendsProfiles(data["friends"]),
-                          )
-
-
-                          )
-
+                            future:
+                                Utils.getUsersFriendsProfiles(data["friends"]),
+                          ))
                         ],
                       ),
                     );

@@ -25,10 +25,11 @@ class _EventListWidgetState extends State<EventListWidget> {
                   .snapshots(),
               builder: (BuildContext context,
                   AsyncSnapshot<QuerySnapshot> snapshot) {
+                if(snapshot.hasData){
                 var events = getEvents(snapshot);
                 return ListView.builder(
-                    padding: const EdgeInsets.all(8),
-                    itemCount: events.length,
+                    padding: EdgeInsets.all(8),
+                    itemCount: snapshot.data!.docs.length,
                     itemBuilder: (BuildContext context, int index) {
                       return InkWell(
                         customBorder: RoundedRectangleBorder(
@@ -99,7 +100,10 @@ class _EventListWidgetState extends State<EventListWidget> {
                           ),
                         ),
                       );
-                    });
+                    });}
+                else{
+                  return Text("Нет мероприятий :(");
+                }
               })),
     );
   }
@@ -107,7 +111,8 @@ class _EventListWidgetState extends State<EventListWidget> {
   getEvents(AsyncSnapshot<QuerySnapshot> snapshot) {
     List<Event> events = <Event>[];
     if (snapshot.hasData)
-      snapshot.data!.docs.forEach((document) {
+      for(int i =0;i<snapshot.data!.docs.length;i++){
+        var document = snapshot.data!.docs[i];
         GeoPoint tempGeoPoint =
             document["eventPosition"]["geopoint"] as GeoPoint;
         var tempEvent = Event()
@@ -123,7 +128,7 @@ class _EventListWidgetState extends State<EventListWidget> {
         });
         tempEvent.users = listOfUsers;
         events.add(tempEvent);
-      });
+      }
 
     return events;
   }

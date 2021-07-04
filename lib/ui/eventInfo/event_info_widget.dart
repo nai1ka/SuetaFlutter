@@ -9,11 +9,17 @@ final firebase = FirebaseFirestore.instance
     .collection("Kazan");
 final FirebaseAuth auth = FirebaseAuth.instance;
 
-class EventInfoWidget extends StatelessWidget {
+class EventInfoWidget extends StatefulWidget {
   EventInfoWidget(this.event);
-
   Event? event;
 
+
+  @override
+  _EventInfoWidgetState createState() => _EventInfoWidgetState();
+}
+
+class _EventInfoWidgetState extends State<EventInfoWidget> {
+  int isButtonClicked = 0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,7 +48,7 @@ class EventInfoWidget extends StatelessWidget {
                   children: [
                     Flexible(
                       child: Text(
-                        "${event!.eventName}",
+                        "${widget.event!.eventName}",
                         style: TextStyle(
                             fontSize: 40,
                             color: Colors.indigo,
@@ -62,7 +68,7 @@ class EventInfoWidget extends StatelessWidget {
                       ),
                       child: Row(
                         children: [
-                          Text("Ещё ${event!.peopleNumber! - event!.users.length} человек"),
+                          Text("Ещё ${widget.event!.peopleNumber - widget.event!.users.length-isButtonClicked} человек"),
                           Padding(padding: EdgeInsets.only(right: 4.0)),
                           Icon(Icons.people),
                         ],
@@ -76,9 +82,14 @@ class EventInfoWidget extends StatelessWidget {
             padding: EdgeInsets.all(20.0),
             child: ElevatedButton(
               onPressed: () {
-                firebase.doc(event!.id).set({
+
+
+                firebase.doc(widget.event!.id).set({
                   "users": {auth.currentUser?.uid: true}
                 }, SetOptions(merge: true));
+                setState((){
+                  isButtonClicked = 1;
+                });
               },
               child: Text("Я буду!"),
               style: ButtonStyle(
