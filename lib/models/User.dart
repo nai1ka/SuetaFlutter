@@ -10,7 +10,7 @@ class User{
   String city = "Казань";
   String email = "";
   String id = "";
-  List<String> friends = [];
+  Map<String,bool> friends = {};
 
 
   User(this.name, this.age, this.city);

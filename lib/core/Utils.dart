@@ -16,7 +16,7 @@ class Utils {
     if (rawUser.exists) {
       Map<String, dynamic> data = rawUser.data()!;
       var resultUser = User(data["name"], data["age"], data["city"])
-        ..friends = List.castFrom(data["friends"]);
+        ..friends = Map.castFrom(data["friends"]);
 
       return resultUser;
     }
@@ -27,19 +27,28 @@ class Utils {
   }
 
   static Future<List<User>> getUsersFriendsProfiles(
-      List<dynamic> friendsId) async {
+      Map<String, dynamic>friendsId) async {
     List<User> resultList = [];
-    for (int i = 0; i < friendsId.length; i++) {
-      await getInfoAboutUser(friendsId[i]).then((value) =>
+    for (var entry in friendsId.entries) {
+      if(entry.value)  await getInfoAboutUser(entry.key).then((value) =>
           resultList.add(value));
     }
 
     return resultList;
   }
+  static Future<List<User>> getUsersRequests(List<dynamic> requestsList) async {
+   List<User> resultList = [];
+   for(var i in requestsList){
+     await getInfoAboutUser(i).then((value) => resultList.add(value));
+   }
 
+    return resultList;
+  }
 
 //var resultUser = User(rawUser.["name"], rawUser["name"], city, email)
 
 
   Utils._internal();
+
+
 }

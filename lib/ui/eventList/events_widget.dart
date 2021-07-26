@@ -60,7 +60,7 @@ class _EventListWidgetState extends State<EventListWidget> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      events[index].eventName,
+                                      events[index].eventName ?? "",
                                       style: TextStyle(
                                           fontSize: 18,
                                           fontWeight: FontWeight.bold),
@@ -75,7 +75,7 @@ class _EventListWidgetState extends State<EventListWidget> {
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
-                                    Text("23 октября"),
+                                   // Text("${events[index].eventDate}"),
                                     Padding(
                                         padding: EdgeInsets.only(bottom: 10.0)),
                                     FlatButton(
@@ -108,7 +108,7 @@ class _EventListWidgetState extends State<EventListWidget> {
     );
   }
 
-  getEvents(AsyncSnapshot<QuerySnapshot> snapshot) {
+  List<Event> getEvents(AsyncSnapshot<QuerySnapshot> snapshot) {
     List<Event> events = <Event>[];
     if (snapshot.hasData)
       for(int i =0;i<snapshot.data!.docs.length;i++){
@@ -116,6 +116,7 @@ class _EventListWidgetState extends State<EventListWidget> {
         GeoPoint tempGeoPoint =
             document["eventPosition"]["geopoint"] as GeoPoint;
         var tempEvent = Event()
+        ..eventDate = (document["eventDate"] as Timestamp).toDate()
           ..eventName = document["eventName"]
           ..eventPosition =
               LatLng(tempGeoPoint.latitude, tempGeoPoint.longitude)

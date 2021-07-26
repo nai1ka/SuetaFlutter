@@ -29,7 +29,6 @@ class Event {
                   latitude: eventPosition!.latitude,
                   longitude: eventPosition!.longitude)
               .data, // Stokes and Sons
-          'eventTime': "4:20",
           'peopleNumber': 5,
       'users':{}// 42
         })

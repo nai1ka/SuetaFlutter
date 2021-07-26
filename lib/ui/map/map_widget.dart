@@ -76,7 +76,6 @@ class _MapPageState extends State<MapPage> {
             )
         );
       });
-    print(markers);
     var t = Set<Marker>.of(markers);
     return markers;
 

@@ -60,7 +60,13 @@ class MainPageState extends State<MainPage> {
         ),
         bottomNavigationBar: buildBottomNavigationBar(),
         floatingActionButton: Visibility(child:  FloatingActionButton.extended(
-          onPressed: (){showDialog(context: context, builder: (BuildContext context){return AddEventDialog();});},
+          onPressed: (){
+            showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AddEventDialog();
+                      });
+                },
           label: Text('Суета!'),
           icon: Icon(Icons.add),
         ),
