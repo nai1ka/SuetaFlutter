@@ -1,7 +1,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:geoflutterfire/geoflutterfire.dart';
-import 'package:test_flutter/ui/dialogs/AddEventDialog.dart';
+
+import 'package:test_flutter/ui/eventAdd/EventAddWidget.dart';
 import 'package:test_flutter/ui/eventList/events_widget.dart';
 import 'package:test_flutter/ui/map/map_widget.dart';
 import 'package:test_flutter/ui/profile/profile_widget.dart';
@@ -60,14 +61,16 @@ class MainPageState extends State<MainPage> {
         ),
         bottomNavigationBar: buildBottomNavigationBar(),
         floatingActionButton: Visibility(child:  FloatingActionButton.extended(
-          onPressed: (){
-            showDialog(
+          onPressed: () {
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) => EventAddWidget()));
+          },
+           /* showDialog(
                       context: context,
                       builder: (BuildContext context) {
                         return AddEventDialog();
                       });
-                },
-          label: Text('Суета!'),
+                },*/
+          label: Text('Навести суеты!'),
           icon: Icon(Icons.add),
         ),
           visible: isFabVisible,)

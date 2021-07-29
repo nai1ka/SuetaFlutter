@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import 'package:test_flutter/core/Utils.dart';
+
 import 'package:test_flutter/models/Event.dart';
 import 'package:test_flutter/ui/eventInfo/event_info_widget.dart';
 
@@ -14,6 +16,11 @@ class EventListWidget extends StatefulWidget {
 
 class _EventListWidgetState extends State<EventListWidget> {
   @override
+  void initState() {
+
+    super.initState();
+  }
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
@@ -25,83 +32,87 @@ class _EventListWidgetState extends State<EventListWidget> {
                   .snapshots(),
               builder: (BuildContext context,
                   AsyncSnapshot<QuerySnapshot> snapshot) {
-                if(snapshot.hasData){
-                var events = getEvents(snapshot);
-                return ListView.builder(
-                    padding: EdgeInsets.all(8),
-                    itemCount: snapshot.data!.docs.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return InkWell(
-                        customBorder: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(26.0),
-                        ),
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      EventInfoWidget(events[index])));
-                        },
-                        child: Card(
-                          color: Color(0xFFFBF1A3),
-                          shape: RoundedRectangleBorder(
+                if (snapshot.hasData) {
+                  var events = getEvents(snapshot);
+                  return ListView.builder(
+                      padding: EdgeInsets.all(8),
+                      itemCount: snapshot.data!.docs.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return InkWell(
+                          customBorder: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(26.0),
                           ),
-                          child: Padding(
-                            padding: EdgeInsets.all(25.0),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      events[index].eventName ?? "",
-                                      style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    Padding(
-                                        padding: EdgeInsets.only(bottom: 10.0)),
-                                    Text(
-                                        "${events[index].peopleNumber} человек"),
-                                  ],
-                                ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                   // Text("${events[index].eventDate}"),
-                                    Padding(
-                                        padding: EdgeInsets.only(bottom: 10.0)),
-                                    FlatButton(
-                                      onPressed: () {
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    EventInfoWidget(
-                                                        events[index])));
-                                      },
-                                      child: Text("Join"),
-                                      color: Color(0xFFB3DDC6),
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10)),
-                                    )
-                                  ],
-                                )
-                              ],
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        EventInfoWidget(events[index])));
+                          },
+                          child: Card(
+                            color: Color(0xFFFBF1A3),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(26.0),
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.all(25.0),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        events[index].eventName,
+                                        style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      Padding(
+                                          padding:
+                                              EdgeInsets.only(bottom: 10.0)),
+                                      Text(
+                                          "${events[index].peopleNumber} человек"),
+                                    ],
+                                  ),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      Text("${Utils.humanizeDate(events[index].eventDate)}"),
+                                      Padding(
+                                          padding:
+                                              EdgeInsets.only(bottom: 10.0)),
+                                      FlatButton(
+                                        onPressed: () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      EventInfoWidget(
+                                                          events[index])));
+                                        },
+                                        child: Text("Join"),
+                                        color: Color(0xFFB3DDC6),
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10)),
+                                      )
+                                    ],
+                                  )
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      );
-                    });}
-                else{
+                        );
+                      });
+                } else {
                   return Text("Нет мероприятий :(");
                 }
               })),
@@ -111,19 +122,19 @@ class _EventListWidgetState extends State<EventListWidget> {
   List<Event> getEvents(AsyncSnapshot<QuerySnapshot> snapshot) {
     List<Event> events = <Event>[];
     if (snapshot.hasData)
-      for(int i =0;i<snapshot.data!.docs.length;i++){
+      for (int i = 0; i < snapshot.data!.docs.length; i++) {
         var document = snapshot.data!.docs[i];
         GeoPoint tempGeoPoint =
             document["eventPosition"]["geopoint"] as GeoPoint;
         var tempEvent = Event()
-        ..eventDate = (document["eventDate"] as Timestamp).toDate()
+          ..eventDate = (document["eventDate"] as Timestamp).toDate()
           ..eventName = document["eventName"]
           ..eventPosition =
               LatLng(tempGeoPoint.latitude, tempGeoPoint.longitude)
           ..peopleNumber = document["peopleNumber"]
           ..id = document.id;
         List<String> listOfUsers = [];
-        Map<String,dynamic> tempUsers = document["users"];
+        Map<String, dynamic> tempUsers = document["users"];
         tempUsers.forEach((key, value) {
           listOfUsers.add(key);
         });

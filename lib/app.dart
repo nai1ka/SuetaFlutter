@@ -1,12 +1,12 @@
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:test_flutter/ui/login/login_widget.dart';
+
 import 'package:test_flutter/ui/main/main_widget.dart';
 import 'package:test_flutter/ui/registration/registration_widget.dart';
 
@@ -49,12 +49,16 @@ class MyApp extends StatelessWidget {
         // Show splash screen while waiting for app resources to load:
         if (snapshot.data==false) {
           return MaterialApp(
+            builder: (context, child) =>
+                MediaQuery(data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true), child: child!),
             debugShowCheckedModeBanner: false,
             home: RegistrationWidget(),
           );
         } else {
           // Loading is done, return the app:
           return MaterialApp(
+            builder: (context, child) =>
+                MediaQuery(data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true), child: child!),
             debugShowCheckedModeBanner: false,
             home: MainPage(),
           );
