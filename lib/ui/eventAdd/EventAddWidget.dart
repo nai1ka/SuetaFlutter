@@ -15,7 +15,7 @@ import 'package:test_flutter/models/Event.dart';
 CollectionReference events = FirebaseFirestore.instance
     .collection('core')
     .doc("events")
-    .collection("Kazan");
+    .collection("list");
 final FirebaseAuth auth = FirebaseAuth.instance;
 Event newEvent = Event()..eventOwnerId = auth.currentUser!.uid;
 List markers = [];
@@ -31,8 +31,6 @@ class EventAddWidget extends StatefulWidget {
 class _EventAddWidgetState extends State<EventAddWidget> {
   int activeStep = 0; // Initial step set to 5.
 
-
-
   @override
   void initState() {
     markers = [];
@@ -46,9 +44,12 @@ class _EventAddWidgetState extends State<EventAddWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      /* appBar: AppBar(
+          leading: BackButton(onPressed: () => Navigator.pop(context, true))),*/
       body: SafeArea(
         child: Column(
           children: [
+            //TODO сделать кнопку назад
             IconStepper(
               icons: [
                 Icon(Icons.description_outlined),
@@ -66,6 +67,7 @@ class _EventAddWidgetState extends State<EventAddWidget> {
                 });
               },
             ),
+
             Expanded(
               child: Container(
                 padding: EdgeInsets.all(10),
@@ -96,7 +98,6 @@ class _EventAddWidgetState extends State<EventAddWidget> {
           )
         ],
       ),
-
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -202,15 +203,14 @@ class _EventAddWidgetState extends State<EventAddWidget> {
                   children: [
                     Icon(Icons.watch_later_outlined),
                     Padding(padding: EdgeInsets.only(right: 8)),
-                    Text("${newEvent.eventDate.hour}:${newEvent.eventDate.minute}"),
+                    Text(
+                        "${newEvent.eventDate.hour}:${newEvent.eventDate.minute}"),
                     Spacer(),
                     Text("Изменить")
                   ],
                 ),
               ),
             ),
-
-
           ],
         ),
       ),
@@ -266,19 +266,18 @@ class _EventAddWidgetState extends State<EventAddWidget> {
             TextButton(
               onPressed: () {
                 setState(() {
-                  if(Utils.checkEvent(newEvent)) {
+                  if (Utils.checkEvent(newEvent)) {
                     Utils.saveEventToFirebase(newEvent);
                     Navigator.pop(context, true);
-                  }
-                  else{
+                  } else {
                     Fluttertoast.showToast(
-                        msg: "Неверно введены данные",
-                        toastLength: Toast.LENGTH_SHORT,
-                        gravity: ToastGravity.BOTTOM,
+                      msg: "Неверно введены данные",
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
                     );
                   }
-              });
-    },
+                });
+              },
               child: Text(
                 "Готово",
                 style: TextStyle(color: Color(0xFF2A41CB), fontSize: 15),
@@ -323,7 +322,6 @@ class _EventAddWidgetState extends State<EventAddWidget> {
     var now = DateTime.now();
     TimeOfDay selectedTime = TimeOfDay(hour: now.hour, minute: now.minute);
     final TimeOfDay? picked = await showTimePicker(
-
       context: context,
       initialTime: selectedTime,
     );
@@ -346,6 +344,4 @@ class _EventAddWidgetState extends State<EventAddWidget> {
     }
     return resultWidget;
   }
-
-
 }

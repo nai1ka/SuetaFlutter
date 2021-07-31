@@ -9,7 +9,7 @@ class Event {
   String eventOwnerId = "";
   LatLng? eventPosition;
   int peopleNumber = 0;
-  String? id;
+  String id = "";
   List<String> users = [];
 
 

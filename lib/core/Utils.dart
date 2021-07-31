@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:test_flutter/models/Event.dart';
 
 import 'package:test_flutter/ui/main/main_widget.dart';
@@ -13,7 +14,7 @@ class Utils {
   static final eventsReference = FirebaseFirestore.instance
       .collection('core')
       .doc("events")
-      .collection("Kazan");
+      .collection("list");
   static final userListReference = FirebaseFirestore.instance
       .collection("core")
       .doc("users")
@@ -81,6 +82,78 @@ class Utils {
     return resultList;
   }
 
+   static Future<List<Event>> getEventsFromSnapshot(AsyncSnapshot<QuerySnapshot> snapshot) async{
+    List<Event> events = <Event>[];
+    if (snapshot.hasData)
+      for (int i = 0; i < snapshot.data!.docs.length; i++) {
+        await getInfoAboutEvent(snapshot.data!.docs[i].id).then((value) =>
+            events.add(value));
+      }
+    return events;
+  }
+
+  static Future<Event> getInfoAboutEvent(String id) async {
+    var rawEvent = await firestore
+        .collection("core")
+        .doc("events")
+        .collection("list")
+        .doc(id)
+        .get();
+    if (rawEvent.exists) {
+      var data = rawEvent.data()!;
+      GeoPoint tempGeoPoint =
+      data["eventPosition"]["geopoint"] as GeoPoint;
+      var resultEvent = Event()..eventName = data["eventName"]
+      ..eventDescription = data["eventDescription"]
+        ..eventPosition =
+        LatLng(tempGeoPoint.latitude, tempGeoPoint.longitude)
+        ..eventDate = (data["eventDate"] as Timestamp).toDate()
+      ..eventOwnerId = data["eventOwner"]
+      ..peopleNumber = data["peopleNumber"]
+      ..id = id
+      ..users = List.castFrom(data["users"]);
+
+
+      return resultEvent;
+    }
+    throw "Нет";
+    //TODO если событие не существует(например, удалил аккаунт), то это сломается
+
+    //var resultUser = User(rawUser.["name"], rawUser["name"], city, email)
+  }
+
+  static Future<List<Event>> getUsersOwnEvents(String userId) async {
+    List<Event> resultList = [];
+    Map<String,dynamic> requestsId = {};
+    await FirebaseFirestore.instance
+        .collection("core")
+        .doc("users")
+        .collection("list")
+        .doc(userId)
+        .get()
+        .then((value) => requestsId = value.data()!["events"]);
+    for (var i in requestsId.entries) {
+      if(i.value == true) await getInfoAboutEvent(i.key).then((value) => resultList.add(value));
+    }
+    return resultList;
+  }
+
+  static Future<List<Event>> getUsersAvailableEvents(String userId) async {
+    List<Event> resultList = [];
+    Map<String,dynamic> requestsId = {};
+    await FirebaseFirestore.instance
+        .collection("core")
+        .doc("users")
+        .collection("list")
+        .doc(userId)
+        .get()
+        .then((value) => requestsId = value.data()!["events"]);
+    for (var i in requestsId.entries) {
+      if(i.value == false) await getInfoAboutEvent(i.key).then((value) => resultList.add(value));
+    }
+    return resultList;
+  }
+
   static String humanizeDate(DateTime? date) {
     var resultString = "";
     if (date != null) {
@@ -110,16 +183,16 @@ class Utils {
         case 8:
           resultString += " августа";
           break;
-        case 8:
+        case 9:
           resultString += " сентября";
           break;
-        case 8:
+        case 10:
           resultString += " октября";
           break;
-        case 8:
+        case 11:
           resultString += " ноября";
           break;
-        case 8:
+        case 12:
           resultString += " декабря";
           break;
         default:
@@ -132,6 +205,10 @@ class Utils {
       resultString+=date.minute.toString();*/
     }
     return resultString;
+  }
+  static getDateForDescription(DateTime date){
+    return "${humanizeDate(date)}, ${date.year} | ${date.hour}:${date.minute}";
+
   }
 
   static DateTime changeTime(DateTime dateTime, TimeOfDay timeOfDay) {
@@ -164,7 +241,39 @@ class Utils {
       'peopleNumber': event.peopleNumber,
       'users': {}
     }).then((value) =>
-        userListReference.doc(auth.currentUser!.uid).update({"events": [value.id]}));
+        userListReference.doc(auth.currentUser!.uid).update({"events": {value.id:true}
+        }));
+  }
+
+  static deleteEvent(String id){
+    try{
+      eventsReference.doc(id).delete();
+      return true;
+    }
+    catch(e){
+      return false;
+    }
+
+  }
+
+  static addUserAsGuest(String eventID){
+    try {
+      eventsReference.doc(eventID).set({
+        "users": [auth.currentUser?.uid]
+      }, SetOptions(merge: true));
+      //Добавление данных в field users в документе events
+      userListReference.doc(auth.currentUser!.uid).update(
+          {"events": {eventID: false}});
+      //Добавление данных в field events в документе users (false, потому что гость - пользователь)
+      return true;
+    }
+    catch (e) {
+      return false;
+    }
+  }
+
+  static bool checkIfUserAlreadyRegisteredInEvent(Event event){
+    return event.users.contains(auth.currentUser!.uid);
   }
 
 //var resultUser = User(rawUser.["name"], rawUser["name"], city, email)

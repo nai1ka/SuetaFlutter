@@ -17,9 +17,9 @@ class EventListWidget extends StatefulWidget {
 class _EventListWidgetState extends State<EventListWidget> {
   @override
   void initState() {
-
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,120 +28,103 @@ class _EventListWidgetState extends State<EventListWidget> {
               stream: FirebaseFirestore.instance
                   .collection('core')
                   .doc("events")
-                  .collection("Kazan")
+                  .collection("list")
                   .snapshots(),
               builder: (BuildContext context,
                   AsyncSnapshot<QuerySnapshot> snapshot) {
                 if (snapshot.hasData) {
-                  var events = getEvents(snapshot);
-                  return ListView.builder(
-                      padding: EdgeInsets.all(8),
-                      itemCount: snapshot.data!.docs.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        return InkWell(
-                          customBorder: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(26.0),
-                          ),
-                          onTap: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        EventInfoWidget(events[index])));
-                          },
-                          child: Card(
-                            color: Color(0xFFFBF1A3),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(26.0),
-                            ),
-                            child: Padding(
-                              padding: EdgeInsets.all(25.0),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Column(
-                                    mainAxisSize: MainAxisSize.max,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                 return FutureBuilder(
+                    future: Utils.getEventsFromSnapshot(snapshot),
+                    builder: (context, AsyncSnapshot<List<Event>> eventsSnap) {
+                      var events = eventsSnap.data!;
+                      return ListView.builder(
+                          padding: EdgeInsets.all(8),
+                          itemCount: events.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return InkWell(
+                              customBorder: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(26.0),
+                              ),
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            EventInfoWidget(events[index])));
+                              },
+                              child: Card(
+                                color: Color(0xFFFBF1A3),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(26.0),
+                                ),
+                                child: Padding(
+                                  padding: EdgeInsets.all(25.0),
+                                  child: Row(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text(
-                                        events[index].eventName,
-                                        style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold),
+                                      Column(
+                                        mainAxisSize: MainAxisSize.max,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            events[index].eventName,
+                                            style: TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          Padding(
+                                              padding: EdgeInsets.only(
+                                                  bottom: 10.0)),
+                                          Text(
+                                              "${events[index].peopleNumber} человек"),
+                                        ],
                                       ),
-                                      Padding(
-                                          padding:
-                                              EdgeInsets.only(bottom: 10.0)),
-                                      Text(
-                                          "${events[index].peopleNumber} человек"),
-                                    ],
-                                  ),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      Text("${Utils.humanizeDate(events[index].eventDate)}"),
-                                      Padding(
-                                          padding:
-                                              EdgeInsets.only(bottom: 10.0)),
-                                      FlatButton(
-                                        onPressed: () {
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      EventInfoWidget(
-                                                          events[index])));
-                                        },
-                                        child: Text("Join"),
-                                        color: Color(0xFFB3DDC6),
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10)),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                              "${Utils.humanizeDate(events[index].eventDate)}"),
+                                          Padding(
+                                              padding: EdgeInsets.only(
+                                                  bottom: 10.0)),
+                                          FlatButton(
+                                            onPressed: () {
+                                              Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          EventInfoWidget(
+                                                              events[index])));
+                                            },
+                                            child: Text("Join"),
+                                            color: Color(0xFFB3DDC6),
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(10)),
+                                          )
+                                        ],
                                       )
                                     ],
-                                  )
-                                ],
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                        );
-                      });
+                            );
+                          });
+                    },
+                  );
                 } else {
                   return Text("Нет мероприятий :(");
                 }
               })),
     );
-  }
-
-  List<Event> getEvents(AsyncSnapshot<QuerySnapshot> snapshot) {
-    List<Event> events = <Event>[];
-    if (snapshot.hasData)
-      for (int i = 0; i < snapshot.data!.docs.length; i++) {
-        var document = snapshot.data!.docs[i];
-        GeoPoint tempGeoPoint =
-            document["eventPosition"]["geopoint"] as GeoPoint;
-        var tempEvent = Event()
-          ..eventDate = (document["eventDate"] as Timestamp).toDate()
-          ..eventName = document["eventName"]
-          ..eventPosition =
-              LatLng(tempGeoPoint.latitude, tempGeoPoint.longitude)
-          ..peopleNumber = document["peopleNumber"]
-          ..id = document.id;
-        List<String> listOfUsers = [];
-        Map<String, dynamic> tempUsers = document["users"];
-        tempUsers.forEach((key, value) {
-          listOfUsers.add(key);
-        });
-        tempEvent.users = listOfUsers;
-        events.add(tempEvent);
-      }
-
-    return events;
   }
 }

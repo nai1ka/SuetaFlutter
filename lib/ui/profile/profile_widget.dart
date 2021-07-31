@@ -179,7 +179,6 @@ class _ProfileWidgetState extends State<ProfileWidget>
                                           color: Theme
                                               .of(context)
                                               .primaryColor),
-                                      isScrollable: false,
                                       controller: mTabController,
                                       tabs: ["Друзья", "Заявки"].map((item) {
                                         return Tab(
@@ -190,7 +189,6 @@ class _ProfileWidgetState extends State<ProfileWidget>
                                   ),
                                   Expanded(
                                     child: PageView(
-                                      scrollDirection: Axis.horizontal,
                                       controller: mPageController,
                                       children: [
                                         friendsFuture(data),
@@ -265,7 +263,7 @@ class _ProfileWidgetState extends State<ProfileWidget>
                       child:friendsWidget(requestsSnap));
                 });
           }
-          return Center(child: Text("Ошибка загрузки. Попробуйте ещё раз", style: TextStyle(
+          return const Center(child: Text("Ошибка загрузки. Попробуйте ещё раз", style: TextStyle(
             fontSize: 20,fontWeight: FontWeight.bold
           ),));
         }
@@ -274,8 +272,8 @@ class _ProfileWidgetState extends State<ProfileWidget>
     );
   }
 
-  requestsWidget(AsyncSnapshot <List<UserClass.User>> tempRequestsSnap) {
-    var requestsData = tempRequestsSnap.data ?? [];
+  ListView requestsWidget(AsyncSnapshot <List<UserClass.User>> tempRequestsSnap) {
+    final requestsData = tempRequestsSnap.data ?? [];
     return ListView.builder(
         padding: const EdgeInsets.all(8),
         itemCount: requestsData.length,
@@ -286,28 +284,28 @@ class _ProfileWidgetState extends State<ProfileWidget>
             ),
             onTap: () {},
             child: Card(
-              color: Color(0xFFFBF1A3),
+              color: const Color(0xFFFBF1A3),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10.0),
               ),
               child: Padding(
-                padding: EdgeInsets.all(10.0),
+                padding: const EdgeInsets.all(10.0),
                 child: Row(
                   children: [
-                    CircleAvatar(
+                    const CircleAvatar(
                       radius: 30,
                       backgroundImage: NetworkImage(
                           "https://sun9-35.userapi.com/impg/if9IW4cjk9NqMP8jIDlpnyN4OzYwgI_slPuIRg/eI_lz4ndboQ.jpg?size=1707x1707&quality=96&sign=494450df4ad7064b42ef36684f1580f5&type=album"),
                     ),
                     Padding(padding: EdgeInsets.only(right: 5)),
                     Text(
-                      "${requestsData[index].name}",
-                      style: TextStyle(fontSize: 14),
+                      requestsData[index].name,
+                      style: const TextStyle(fontSize: 14),
                     ),
-                    Spacer(),
+                    const Spacer(),
                     //Принятие запроса на дружбу
                     IconButton(
-                        icon: Icon(Icons.check_rounded),
+                        icon: const Icon(Icons.check_rounded),
                         onPressed: () {
                           //Удаление пользоователя из списка входящих запросов на дружбу
                           userListReference.doc(auth.currentUser!.uid).update({
@@ -324,10 +322,10 @@ class _ProfileWidgetState extends State<ProfileWidget>
                             "friends": {auth.currentUser!.uid: true}
                           });
                         }),
-                    Padding(padding: EdgeInsets.only(left: 5)),
+                    const Padding(padding: EdgeInsets.only(left: 5)),
                     //Отклонение запроса на дружбу
                     IconButton(
-                      icon: Icon(Icons.close_rounded),
+                      icon: const Icon(Icons.close_rounded),
                       onPressed: () {
                         //Удаление пользоователя из списка входящих запросов на дружбу
                         userListReference.doc(auth.currentUser!.uid).update({
@@ -351,7 +349,7 @@ class _ProfileWidgetState extends State<ProfileWidget>
         });
   }
 
-  requestsFuture(Map<String, dynamic> data) {
+  StreamBuilder<DocumentSnapshot<Map<String, dynamic>>> requestsFuture(Map<String, dynamic> data) {
     return StreamBuilder(
         stream: userListReference.doc(auth.currentUser!.uid).snapshots(),
         builder: (context, snapshot) {
@@ -371,7 +369,7 @@ class _ProfileWidgetState extends State<ProfileWidget>
                     child:requestsWidget(requestsSnap));
                 });
           }
-          return Text("fdsdf");
+          return const Text("fdsdf");
         }
 
 
@@ -379,11 +377,11 @@ class _ProfileWidgetState extends State<ProfileWidget>
   }
 
 
-    getFriendsList(String id) async {
+    Future<Future<List<List<UserClass.User>>>> getFriendsList(String id) async {
      return  Future.wait([Utils.getUsersFriendsProfiles(id)]);
     }
 
-    getRequestsList(String id) async {
+    Future<Future<List<List<UserClass.User>>>> getRequestsList(String id) async {
       return Future.wait([Utils.getUsersRequests(id)]);
     }
   }

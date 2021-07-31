@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-
+import 'package:test_flutter/ui/eventList/myListsWidget.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({Key? key}) : super(key: key);
@@ -22,62 +22,66 @@ class _MapPageState extends State<MapPage> {
     zoom: 14.4746,
   );
 
- @override
+  @override
   void initState() {
-   rootBundle.loadString('assets/map_style.txt').then((string) {
-     _mapStyle = string;
-   });
+    rootBundle.loadString('assets/map_style.txt').then((string) {
+      _mapStyle = string;
+    });
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-
-        body: SafeArea(child: StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance.collection('core')
-                .doc("events")
-                .collection("Kazan").snapshots(),
-            builder:
-                (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-              return GoogleMap(
-
-                initialCameraPosition: _kGooglePlex,
-                markers:Set<Marker>.of(getEventsMarker(snapshot)),
-                padding: EdgeInsets.fromLTRB(0, 0, 0, 60) +
-                    MediaQuery
-                        .of(context)
-                        .padding,
-                onMapCreated: (GoogleMapController controller) {
-                  _controller.complete(controller);
-                  controller.setMapStyle(_mapStyle);
-
-
-                },
-              );
-            })),);
+      body: SafeArea(
+          child: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('core')
+                  .doc("events")
+                  .collection("list")
+                  .snapshots(),
+              builder: (BuildContext context,
+                  AsyncSnapshot<QuerySnapshot> snapshot) {
+                return Stack(children: [
+                  GoogleMap(
+                    initialCameraPosition: _kGooglePlex,
+                    markers: Set<Marker>.of(getEventsMarker(snapshot)),
+                    padding: EdgeInsets.fromLTRB(0, 0, 0, 60) +
+                        MediaQuery.of(context).padding,
+                    onMapCreated: (GoogleMapController controller) {
+                      _controller.complete(controller);
+                      controller.setMapStyle(_mapStyle);
+                    },
+                  ),
+                  Positioned(
+                      top: 0,
+                      right: 0,
+                      child: IconButton(
+                        icon: Icon(Icons.event),
+                        onPressed: () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (context) => MyListsWidget()));
+                        },
+                      )),
+                ]);
+              })),
+    );
   }
-
-
 
   getEventsMarker(AsyncSnapshot<QuerySnapshot> snapshot) {
     List<Marker> markers = <Marker>[];
     if (snapshot.hasData)
       snapshot.data!.docs.forEach((document) {
-        GeoPoint tempGeoPoint = document["eventPosition"]["geopoint"] as GeoPoint;
-        markers.add(
-            Marker(
-                markerId: MarkerId(document.id),
-                icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
-                position: LatLng(tempGeoPoint.latitude, tempGeoPoint.longitude),
-                infoWindow: InfoWindow(
-                  title: document["eventName"],
-                )
-            )
-        );
+        GeoPoint tempGeoPoint =
+            document["eventPosition"]["geopoint"] as GeoPoint;
+        markers.add(Marker(
+            markerId: MarkerId(document.id),
+            icon: BitmapDescriptor.defaultMarkerWithHue(
+                BitmapDescriptor.hueOrange),
+            position: LatLng(tempGeoPoint.latitude, tempGeoPoint.longitude),
+            infoWindow: InfoWindow(
+              title: document["eventName"],
+            )));
       });
     return markers;
-
   }
-
 }
