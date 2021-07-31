@@ -162,7 +162,7 @@ class _MyListWidgetState extends State<MyListsWidget>
                                Navigator.pop(context);
 
                                 var status = Utils.deleteEvent(
-                                    requestsData[index].id);
+                                    requestsData[index]);
                                 if(!status) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Ошибка удаления, обратиитесь к разработчику")));
                                setState(() {
 

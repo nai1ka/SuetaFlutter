@@ -239,15 +239,26 @@ class Utils {
               longitude: event.eventPosition!.longitude)
           .data,
       'peopleNumber': event.peopleNumber,
-      'users': {}
+      'users': []
     }).then((value) =>
         userListReference.doc(auth.currentUser!.uid).update({"events": {value.id:true}
         }));
   }
 
-  static deleteEvent(String id){
+  static deleteEvent(Event event){
     try{
-      eventsReference.doc(id).delete();
+      eventsReference.doc(event.id).delete();
+      event.users.forEach((element) {
+        userListReference.doc(element).update({
+          "events.${event.id}":
+          FieldValue.delete()
+        });
+
+      });
+      userListReference.doc(event.eventOwnerId).update({
+        "events.${event.id}":
+        FieldValue.delete()
+      });
       return true;
     }
     catch(e){

@@ -1,10 +1,13 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cool_alert/cool_alert.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:test_flutter/core/Utils.dart';
+import 'package:test_flutter/ui/eventInfo/event_info_widget.dart';
 import 'package:test_flutter/ui/eventList/myListsWidget.dart';
 
 class MapPage extends StatefulWidget {
@@ -16,6 +19,9 @@ class MapPage extends StatefulWidget {
 
 class _MapPageState extends State<MapPage> {
   Completer<GoogleMapController> _controller = Completer();
+  bool isLoading = false;
+  BitmapDescriptor? myIcon;
+
   String? _mapStyle;
   static final CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(37.42796133580664, -122.085749655962),
@@ -26,6 +32,11 @@ class _MapPageState extends State<MapPage> {
   void initState() {
     rootBundle.loadString('assets/map_style.txt').then((string) {
       _mapStyle = string;
+    });
+    BitmapDescriptor.fromAssetImage(
+        ImageConfiguration(size: Size(48, 48)), 'assets/map_marker.png')
+        .then((onValue) {
+      myIcon = onValue;
     });
     super.initState();
   }
@@ -59,7 +70,8 @@ class _MapPageState extends State<MapPage> {
                       child: IconButton(
                         icon: Icon(Icons.event),
                         onPressed: () {
-          Navigator.of(context).push(MaterialPageRoute(builder: (context) => MyListsWidget()));
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => MyListsWidget()));
                         },
                       )),
                 ]);
@@ -75,12 +87,19 @@ class _MapPageState extends State<MapPage> {
             document["eventPosition"]["geopoint"] as GeoPoint;
         markers.add(Marker(
             markerId: MarkerId(document.id),
-            icon: BitmapDescriptor.defaultMarkerWithHue(
-                BitmapDescriptor.hueOrange),
+            icon: myIcon!,
             position: LatLng(tempGeoPoint.latitude, tempGeoPoint.longitude),
             infoWindow: InfoWindow(
               title: document["eventName"],
-            )));
+            ),
+
+            onTap: () {
+              Utils.getInfoAboutEvent(document.id).then((value) => {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => EventInfoWidget(value))),
+
+                  });
+            }));
       });
     return markers;
   }
