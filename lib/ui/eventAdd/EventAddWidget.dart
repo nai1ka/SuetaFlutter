@@ -35,7 +35,7 @@ class _EventAddWidgetState extends State<EventAddWidget> {
   void initState() {
     markers = [];
     newEvent = Event()..eventOwnerId = auth.currentUser!.uid;
-    rootBundle.loadString('assets/map_style.txt').then((string) {
+    rootBundle.loadString('assets/mapStyle.json').then((string) {
       _mapStyle = string;
     });
     super.initState();

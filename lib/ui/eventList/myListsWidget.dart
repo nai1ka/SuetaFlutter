@@ -116,7 +116,7 @@ class _MyListWidgetState extends State<MyListsWidget>
                   context,
                   MaterialPageRoute(
                       builder: (context) =>
-                          EventInfoWidget(requestsData[index])));
+                          EventInfoWidget(requestsData[index].id)));
             },
             child: Card(
               color: Color(0xFFFBF1A3),
@@ -193,7 +193,7 @@ class _MyListWidgetState extends State<MyListsWidget>
                   context,
                   MaterialPageRoute(
                       builder: (context) =>
-                          EventInfoWidget(requestsData[index])));
+                          EventInfoWidget(requestsData[index].id)));
             },
             child: Card(
               color: Color(0xFFFBF1A3),

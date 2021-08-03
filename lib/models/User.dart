@@ -5,6 +5,7 @@ class User{
   String city = "Казань";
   String email = "";
   String id = "";
+  String avatarURL = "";
   Map<String,bool> friends = {};
 
 

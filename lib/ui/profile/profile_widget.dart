@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:test_flutter/core/Utils.dart';
 import 'package:test_flutter/ui/dialogs/AddFriendDialog.dart';
 import 'package:test_flutter/ui/registration/registration_widget.dart';
@@ -23,7 +26,7 @@ class _ProfileWidgetState extends State<ProfileWidget>
     with TickerProviderStateMixin {
   TabController? mTabController;
   final PageController mPageController = PageController(initialPage: 0);
-
+  var newAvatar = "";
 
   @override
   void initState() {
@@ -39,8 +42,6 @@ class _ProfileWidgetState extends State<ProfileWidget>
         onPageChange(mTabController!.index, p: mPageController);
       }
     });
-
-   
   }
 
   @override
@@ -65,13 +66,13 @@ class _ProfileWidgetState extends State<ProfileWidget>
   Widget build(BuildContext context) {
     return Scaffold(
         body: SafeArea(
-            child: FutureBuilder<DocumentSnapshot>(
-                future: userListReference.doc(auth.currentUser!.uid).get(),
+            child: FutureBuilder(
+                future: Utils.getInfoAboutUser(auth.currentUser!.uid),
                 builder: (BuildContext context,
-                    AsyncSnapshot<DocumentSnapshot> snapshot) {
-                  if (snapshot.connectionState == ConnectionState.done) {
-                    Map<String, dynamic> data =
-                    snapshot.data!.data() as Map<String, dynamic>;
+                    AsyncSnapshot<UserClass.User> userSnapshot) {
+                  if (userSnapshot.connectionState == ConnectionState.done &&
+                      userSnapshot.hasData) {
+                    var user = userSnapshot.data!;
                     return Container(
                       padding: EdgeInsets.all(20),
                       child: Column(
@@ -81,16 +82,26 @@ class _ProfileWidgetState extends State<ProfileWidget>
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              CircleAvatar(
-                                radius: 60,
-                                backgroundImage: NetworkImage(
-                                    "https://sun9-35.userapi.com/impg/if9IW4cjk9NqMP8jIDlpnyN4OzYwgI_slPuIRg/eI_lz4ndboQ.jpg?size=1707x1707&quality=96&sign=494450df4ad7064b42ef36684f1580f5&type=album"),
+                              InkWell(
+                                  onTap: () async {
+                                    var image =
+                                    await ImagePicker().pickImage(
+                                        source: ImageSource.gallery);
+                                    if (image != null) {
+                                      Utils.changeAvatarImage(File(image.path));
+                                      setState(() {
+                                        newAvatar = image.path;
+                                      });
+
+                                    };
+                                  },
+                                  child: getAvatarWidget(user.avatarURL)
                               )
                             ],
                           ),
                           Padding(padding: EdgeInsets.only(bottom: 10)),
                           Text(
-                            "${data["name"]}",
+                            "${user.name}",
                             style: TextStyle(
                                 fontSize: 16, fontWeight: FontWeight.bold),
                           ),
@@ -191,8 +202,8 @@ class _ProfileWidgetState extends State<ProfileWidget>
                                     child: PageView(
                                       controller: mPageController,
                                       children: [
-                                        friendsFuture(data),
-                                        requestsFuture(data),
+                                        friendsFuture(user),
+                                        requestsFuture(user),
                                       ],
                                     ),
                                   )
@@ -225,11 +236,7 @@ class _ProfileWidgetState extends State<ProfileWidget>
                 padding: EdgeInsets.all(10.0),
                 child: Row(
                   children: [
-                    CircleAvatar(
-                      radius: 30,
-                      backgroundImage: NetworkImage(
-                          "https://sun9-35.userapi.com/impg/if9IW4cjk9NqMP8jIDlpnyN4OzYwgI_slPuIRg/eI_lz4ndboQ.jpg?size=1707x1707&quality=96&sign=494450df4ad7064b42ef36684f1580f5&type=album"),
-                    ),
+                    getSmallAvatarWidget(friendsSnap.data![index].avatarURL),
                     Padding(padding: EdgeInsets.only(right: 5)),
                     Text(
                       "${friendsSnap.data![index].name}",
@@ -243,11 +250,10 @@ class _ProfileWidgetState extends State<ProfileWidget>
         });
   }
 
-  friendsFuture(Map<String, dynamic> data) {
+  friendsFuture(UserClass.User user) {
     return StreamBuilder(
-        stream: userListReference.doc(auth.currentUser!.uid).snapshots(),
+        stream: userListReference.doc(user.id).snapshots(),
         builder: (context, snapshot) {
-
           if (snapshot.hasData) {
             return FutureBuilder(
                 future: Utils.getUsersFriendsProfiles(auth.currentUser!.uid),
@@ -260,19 +266,19 @@ class _ProfileWidgetState extends State<ProfileWidget>
                   }
                   return RefreshIndicator(
                       onRefresh: () async {},
-                      child:friendsWidget(requestsSnap));
+                      child: friendsWidget(requestsSnap));
                 });
           }
-          return const Center(child: Text("Ошибка загрузки. Попробуйте ещё раз", style: TextStyle(
-            fontSize: 20,fontWeight: FontWeight.bold
-          ),));
-        }
-
-
-    );
+          return const Center(
+              child: Text(
+                "Ошибка загрузки. Попробуйте ещё раз",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ));
+        });
   }
 
-  ListView requestsWidget(AsyncSnapshot <List<UserClass.User>> tempRequestsSnap) {
+  ListView requestsWidget(
+      AsyncSnapshot<List<UserClass.User>> tempRequestsSnap) {
     final requestsData = tempRequestsSnap.data ?? [];
     return ListView.builder(
         padding: const EdgeInsets.all(8),
@@ -292,11 +298,7 @@ class _ProfileWidgetState extends State<ProfileWidget>
                 padding: const EdgeInsets.all(10.0),
                 child: Row(
                   children: [
-                    const CircleAvatar(
-                      radius: 30,
-                      backgroundImage: NetworkImage(
-                          "https://sun9-35.userapi.com/impg/if9IW4cjk9NqMP8jIDlpnyN4OzYwgI_slPuIRg/eI_lz4ndboQ.jpg?size=1707x1707&quality=96&sign=494450df4ad7064b42ef36684f1580f5&type=album"),
-                    ),
+                    getSmallAvatarWidget(requestsData[index].avatarURL),
                     Padding(padding: EdgeInsets.only(right: 5)),
                     Text(
                       requestsData[index].name,
@@ -309,16 +311,14 @@ class _ProfileWidgetState extends State<ProfileWidget>
                         onPressed: () {
                           //Удаление пользоователя из списка входящих запросов на дружбу
                           userListReference.doc(auth.currentUser!.uid).update({
-                            "friendRequests": FieldValue.arrayRemove(
-                                [requestsData[index].id])
+                            "friendRequests":
+                            FieldValue.arrayRemove([requestsData[index].id])
                           });
                           //Добавление пользователя в список друзей у обоих пользователей
                           userListReference.doc(auth.currentUser!.uid).update({
                             "friends": {requestsData[index].id: true}
                           });
-                          userListReference
-                              .doc(requestsData[index].id)
-                              .update({
+                          userListReference.doc(requestsData[index].id).update({
                             "friends": {auth.currentUser!.uid: true}
                           });
                         }),
@@ -329,13 +329,11 @@ class _ProfileWidgetState extends State<ProfileWidget>
                       onPressed: () {
                         //Удаление пользоователя из списка входящих запросов на дружбу
                         userListReference.doc(auth.currentUser!.uid).update({
-                          "friendRequests": FieldValue.arrayRemove(
-                              [requestsData[index].id])
+                          "friendRequests":
+                          FieldValue.arrayRemove([requestsData[index].id])
                         });
                         //Удаление пользователя из списка исходящих запросов на дружбу
-                        userListReference
-                            .doc(requestsData[index].id)
-                            .update({
+                        userListReference.doc(requestsData[index].id).update({
                           "friends.${auth.currentUser!.uid}":
                           FieldValue.delete()
                         });
@@ -349,11 +347,11 @@ class _ProfileWidgetState extends State<ProfileWidget>
         });
   }
 
-  StreamBuilder<DocumentSnapshot<Map<String, dynamic>>> requestsFuture(Map<String, dynamic> data) {
+  StreamBuilder<DocumentSnapshot<Map<String, dynamic>>> requestsFuture(
+      UserClass.User user) {
     return StreamBuilder(
-        stream: userListReference.doc(auth.currentUser!.uid).snapshots(),
+        stream: userListReference.doc(user.id).snapshots(),
         builder: (context, snapshot) {
-
           if (snapshot.hasData) {
             return FutureBuilder(
                 future: Utils.getUsersRequests(auth.currentUser!.uid),
@@ -365,23 +363,56 @@ class _ProfileWidgetState extends State<ProfileWidget>
                     return Container();
                   }
                   return RefreshIndicator(
-                    onRefresh: () async {},
-                    child:requestsWidget(requestsSnap));
+                      onRefresh: () async {},
+                      child: requestsWidget(requestsSnap));
                 });
           }
           return const Text("fdsdf");
-        }
+        });
+  }
 
+  Future<Future<List<List<UserClass.User>>>> getFriendsList(String id) async {
+    return Future.wait([Utils.getUsersFriendsProfiles(id)]);
+  }
 
-    );
+  Future<Future<List<List<UserClass.User>>>> getRequestsList(String id) async {
+    return Future.wait([Utils.getUsersRequests(id)]);
+  }
+
+  getAvatarWidget(String downloadURL) {
+    if (newAvatar == "") {
+      if (downloadURL == "") {
+        return CircleAvatar(
+            radius: 60,
+            child: Icon(Icons.person));
+      }
+      else {
+        return CircleAvatar(
+            radius: 60,
+            backgroundImage: NetworkImage(downloadURL));
+      }
+    }
+    else {
+      var newAvatarWidget =
+      CircleAvatar(
+          radius: 60,
+          backgroundImage: FileImage(File(newAvatar)));
+      newAvatar = "";
+      return newAvatarWidget;
+    }
   }
 
 
-    Future<Future<List<List<UserClass.User>>>> getFriendsList(String id) async {
-     return  Future.wait([Utils.getUsersFriendsProfiles(id)]);
+  getSmallAvatarWidget(String downloadURL) {
+    if (downloadURL == "") {
+      return CircleAvatar(
+          radius: 20,
+          child: Icon(Icons.person));
     }
-
-    Future<Future<List<List<UserClass.User>>>> getRequestsList(String id) async {
-      return Future.wait([Utils.getUsersRequests(id)]);
+    else {
+      return CircleAvatar(
+          radius: 20,
+          backgroundImage: NetworkImage(downloadURL));
     }
   }
+}

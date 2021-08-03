@@ -1,8 +1,12 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:test_flutter/models/Event.dart';
+import 'package:test_flutter/models/EventDescription.dart';
 
 import 'package:test_flutter/ui/main/main_widget.dart';
 import 'package:test_flutter/models/User.dart' as UserClass;
@@ -11,6 +15,8 @@ class Utils {
   static final Utils _singleton = Utils._internal();
   static final FirebaseAuth auth = FirebaseAuth.instance;
   static final firestore = FirebaseFirestore.instance;
+  static final storage =
+      FirebaseStorage.instance;
   static final eventsReference = FirebaseFirestore.instance
       .collection('core')
       .doc("events")
@@ -36,7 +42,8 @@ class Utils {
       var resultUser = UserClass.User(data["name"], data["age"], data["city"])
         ..friends = Map.castFrom(data["friends"])
         ..id = id;
-
+      await getAvatarsURL(id).then((value) =>
+      resultUser.avatarURL =  value);
       return resultUser;
     }
     throw "No such user";
@@ -284,7 +291,54 @@ class Utils {
   }
 
   static bool checkIfUserAlreadyRegisteredInEvent(Event event){
-    return event.users.contains(auth.currentUser!.uid);
+    return event.users.contains(auth.currentUser!.uid) || event.eventOwnerId==auth.currentUser!.uid;
+  }
+  static Future<EventDescription> getEventDescription(String eventId) async{
+    var event = await getInfoAboutEvent(eventId);
+    var user = await getInfoAboutUser(event.eventOwnerId);
+
+    return EventDescription(event,user);
+
+  }
+
+  static sendFriendsRequest(String userId){
+//TODO првоерить не является ли этот пользователь уже другом
+    try {
+      userListReference.doc(auth.currentUser!.uid).update({
+        "friends": {userId: false}
+      });
+      userListReference.doc(userId).update({
+        "friendRequests":
+        FieldValue.arrayUnion([auth.currentUser!.uid])
+      });
+      return true;
+    }
+    catch (e){
+      return false;
+    }
+  }
+  static changeAvatarImage(File file) async{
+    try {
+      await storage
+          .ref('avatars/${auth.currentUser!.uid}.png')
+          .putFile(file);
+    } on FirebaseException catch (e) {
+      // e.g, e.code == 'canceled'
+    }
+  }
+
+  static Future<String> getAvatarsURL(String userId) async{
+    var downloadURL = "";
+    try{
+      downloadURL = await storage
+          .ref('avatars/${userId}.png')
+          .getDownloadURL();
+    }
+    catch(e){
+
+    }
+    return downloadURL;
+
   }
 
 //var resultUser = User(rawUser.["name"], rawUser["name"], city, email)

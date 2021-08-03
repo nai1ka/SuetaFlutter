@@ -30,7 +30,7 @@ class _MapPageState extends State<MapPage> {
 
   @override
   void initState() {
-    rootBundle.loadString('assets/map_style.txt').then((string) {
+    rootBundle.loadString('assets/mapStyle.json').then((string) {
       _mapStyle = string;
     });
     BitmapDescriptor.fromAssetImage(
@@ -96,7 +96,7 @@ class _MapPageState extends State<MapPage> {
             onTap: () {
               Utils.getInfoAboutEvent(document.id).then((value) => {
                     Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => EventInfoWidget(value))),
+                        builder: (context) => EventInfoWidget(value.id))),
 
                   });
             }));

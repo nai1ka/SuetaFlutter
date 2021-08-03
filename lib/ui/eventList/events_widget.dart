@@ -50,7 +50,7 @@ class _EventListWidgetState extends State<EventListWidget> {
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) =>
-                                            EventInfoWidget(events[index])));
+                                            EventInfoWidget(events[index].id)));
                               },
                               child: Card(
                                 color: Color(0xFFFBF1A3),
@@ -103,7 +103,7 @@ class _EventListWidgetState extends State<EventListWidget> {
                                                   MaterialPageRoute(
                                                       builder: (context) =>
                                                           EventInfoWidget(
-                                                              events[index])));
+                                                              events[index].id)));
                                             },
                                             child: Text("Join"),
                                             color: Color(0xFFB3DDC6),

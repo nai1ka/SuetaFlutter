@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:test_flutter/core/Utils.dart';
 
 
 final FirebaseAuth auth = FirebaseAuth.instance;
@@ -66,13 +67,9 @@ class _AddFriendDialogState extends State<AddFriendDialog> {
                   onPressed: () {
 
                     //TODO сделать проверку на действительность id и то что friendId!=currentUserId
-                    users.doc(auth.currentUser!.uid).update({
-                      "friends": {friendId: false}
-                    });
-                    users.doc(friendId).update({
-                    "friendRequests":
-                    FieldValue.arrayUnion([auth.currentUser!.uid])
-                    });
+
+                    var status = Utils.sendFriendsRequest(friendId??"");
+                    if(!status) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Ошибка отправки запроса, проверьте данные")));
                   },
                   child: Text("Отправить запрос"),
                   style: ButtonStyle(
