@@ -58,47 +58,53 @@ class _MyListWidgetState extends State<MyListsWidget>
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<Object>(
-        stream: userListReference.doc(auth.currentUser!.uid).snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return Scaffold(
-              body: SafeArea(
-                child: Column(
-                  children: [
-                    Container(
-                      color: new Color(0xfff4f5f6),
-                      padding: EdgeInsets.only(right: 10, left: 10, top: 5),
-                      height: 38.0,
-                      child: TabBar(
-                        unselectedLabelColor: Colors.black54,
-                        indicatorSize: TabBarIndicatorSize.tab,
-                        indicator: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            color: Theme.of(context).primaryColor),
-                        isScrollable: false,
-                        controller: mTabController,
-                        tabs: ["Созданные", "Доступные"].map((item) {
-                          return Tab(
-                            text: item,
-                          );
-                        }).toList(),
+    return Scaffold(
+      appBar: AppBar(
+      backgroundColor: Colors.amber,
+      leading: BackButton(),
+    ),
+      body: StreamBuilder<Object>(
+          stream: userListReference.doc(auth.currentUser!.uid).snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+
+                return SafeArea(
+                  child: Column(
+                    children: [
+                      Container(
+                        color: new Color(0xfff4f5f6),
+                        padding: EdgeInsets.only(right: 10, left: 10, top: 5),
+                        height: 38.0,
+                        child: TabBar(
+                          unselectedLabelColor: Colors.black54,
+                          indicatorSize: TabBarIndicatorSize.tab,
+                          indicator: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              color: Theme.of(context).primaryColor),
+                          isScrollable: false,
+                          controller: mTabController,
+                          tabs: ["Созданные", "Доступные"].map((item) {
+                            return Tab(
+                              text: item,
+                            );
+                          }).toList(),
+                        ),
                       ),
-                    ),
-                    Expanded(
-                      child: PageView(
-                        scrollDirection: Axis.horizontal,
-                        controller: mPageController,
-                        children: [myEventsFuture(), availableEventsFuture()],
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            );
-          }
-          return Text("fdsdf");
-        });
+                      Expanded(
+                        child: PageView(
+                          scrollDirection: Axis.horizontal,
+                          controller: mPageController,
+                          children: [myEventsFuture(), availableEventsFuture()],
+                        ),
+                      )
+                    ],
+                  ),
+                );
+
+            }
+            return Text("fdsdf");
+          }),
+    );
   }
 
   myEventsWidget(AsyncSnapshot<List<Event>> tempRequestsSnap) {

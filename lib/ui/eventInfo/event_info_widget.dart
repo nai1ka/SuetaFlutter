@@ -56,6 +56,12 @@ class _EventInfoWidgetState extends State<EventInfoWidget> {
           var user = eventSnapshot.data!.user!;
           //TODO здесь event или user могут быть null, если возникла ошибка при их получении => обработать исключение
           return Scaffold(
+            appBar: AppBar(
+              backgroundColor: Colors.amber,
+                elevation: 0.0,
+                bottomOpacity: 0.0,
+              leading: BackButton(),
+            ),
             bottomNavigationBar: getConfirmButton(event),
             body: SafeArea(
               child: SingleChildScrollView(

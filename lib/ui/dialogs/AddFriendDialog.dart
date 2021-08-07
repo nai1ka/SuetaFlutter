@@ -65,11 +65,14 @@ class _AddFriendDialogState extends State<AddFriendDialog> {
                 padding: EdgeInsets.all(10.0),
                 child: ElevatedButton(
                   onPressed: () {
-
-                    //TODO сделать проверку на действительность id и то что friendId!=currentUserId
-
-                    var status = Utils.sendFriendsRequest(friendId??"");
-                    if(!status) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Ошибка отправки запроса, проверьте данные")));
+                    Utils.sendFriendsRequest(friendId??"")
+                        .then((value) {
+                      if (value.isError)
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(SnackBar(
+                            content: Text(
+                                value.errorText!)));
+                    });
                   },
                   child: Text("Отправить запрос"),
                   style: ButtonStyle(

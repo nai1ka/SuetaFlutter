@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:test_flutter/models/CustomError.dart';
 import 'package:test_flutter/models/Event.dart';
 import 'package:test_flutter/models/EventDescription.dart';
 
@@ -301,20 +302,21 @@ class Utils {
 
   }
 
-  static sendFriendsRequest(String userId){
-//TODO првоерить не является ли этот пользователь уже другом
+  static Future<MethodResponse> sendFriendsRequest(String friendId) async{
     try {
+     var currentUser =  await getInfoAboutUser(auth.currentUser!.uid);
+     if(currentUser.friends.containsKey(friendId)) return MethodResponse(true,"Этот пользователь уже у вас в друзьях");
       userListReference.doc(auth.currentUser!.uid).update({
-        "friends": {userId: false}
+        "friends": {friendId: false}
       });
-      userListReference.doc(userId).update({
+      userListReference.doc(friendId).update({
         "friendRequests":
         FieldValue.arrayUnion([auth.currentUser!.uid])
       });
-      return true;
+      return MethodResponse(false);
     }
     catch (e){
-      return false;
+      return MethodResponse(true,e.toString());
     }
   }
   static changeAvatarImage(File file) async{

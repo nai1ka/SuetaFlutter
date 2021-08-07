@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+
 
 import 'package:test_flutter/core/Utils.dart';
 
@@ -33,7 +33,7 @@ class _EventListWidgetState extends State<EventListWidget> {
               builder: (BuildContext context,
                   AsyncSnapshot<QuerySnapshot> snapshot) {
                 if (snapshot.hasData) {
-                 return FutureBuilder(
+                 return  FutureBuilder(
                     future: Utils.getEventsFromSnapshot(snapshot),
                     builder: (context, AsyncSnapshot<List<Event>> eventsSnap) {
                       var events = eventsSnap.data!;

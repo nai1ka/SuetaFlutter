@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:test_flutter/core/Utils.dart';
 import 'package:test_flutter/ui/dialogs/AddFriendDialog.dart';
+import 'package:test_flutter/ui/profile/user_profile.dart';
 import 'package:test_flutter/ui/registration/registration_widget.dart';
 import 'package:test_flutter/models/User.dart' as UserClass;
 
@@ -30,7 +31,6 @@ class _ProfileWidgetState extends State<ProfileWidget>
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     mTabController = TabController(
       length: 2,
@@ -226,7 +226,7 @@ class _ProfileWidgetState extends State<ProfileWidget>
             customBorder: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(26.0),
             ),
-            onTap: () {},
+            onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => UserProfile(friendsSnap.data![index].id)));},
             child: Card(
               color: Color(0xFFFBF1A3),
               shape: RoundedRectangleBorder(
@@ -288,7 +288,7 @@ class _ProfileWidgetState extends State<ProfileWidget>
             customBorder: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(26.0),
             ),
-            onTap: () {},
+            onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => UserProfile(requestsData[index].id)));},
             child: Card(
               color: const Color(0xFFFBF1A3),
               shape: RoundedRectangleBorder(

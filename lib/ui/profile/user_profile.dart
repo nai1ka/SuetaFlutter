@@ -10,6 +10,10 @@ class UserProfile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.amber,
+        leading: BackButton(),
+      ),
       body: FutureBuilder(
           future: Utils.getInfoAboutUser(userId),
           builder: (BuildContext context, AsyncSnapshot<User> userSnapshot) {
@@ -28,11 +32,7 @@ class UserProfile extends StatelessWidget {
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          CircleAvatar(
-                            radius: 40,
-                            backgroundImage: NetworkImage(
-                                "https://sun9-35.userapi.com/impg/if9IW4cjk9NqMP8jIDlpnyN4OzYwgI_slPuIRg/eI_lz4ndboQ.jpg?size=1707x1707&quality=96&sign=494450df4ad7064b42ef36684f1580f5&type=album"),
-                          ),
+                          getAvatarWidget(user.avatarURL),
                           Padding(padding: EdgeInsets.only(right: 24)),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -48,32 +48,48 @@ class UserProfile extends StatelessWidget {
                                 children: [
                                   TextButton(
                                       onPressed: () {
-                                        var status = Utils.sendFriendsRequest(userId);
-                                        if(!status) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Ошибка отправки запроса, проверьте данные")));
+                                        Utils.sendFriendsRequest(userId)
+                                            .then((value) {
+                                          if (value.isError)
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(SnackBar(
+                                                    content: Text(
+                                                        value.errorText!)));
+                                        });
                                       },
-                                      child: Text("Добавить в друзья", style: TextStyle(color: Colors.white, fontSize: 12),),
+                                      child: Text(
+                                        "Добавить в друзья",
+                                        style: TextStyle(
+                                            color: Colors.white, fontSize: 12),
+                                      ),
                                       style: ButtonStyle(
-                                        backgroundColor: MaterialStateProperty.all(Colors.indigo),
+                                          backgroundColor:
+                                              MaterialStateProperty.all(
+                                                  Colors.indigo),
                                           shape: MaterialStateProperty.all<
                                                   RoundedRectangleBorder>(
                                               RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          16),
-                                              )))),
+                                            borderRadius:
+                                                BorderRadius.circular(16),
+                                          )))),
                                   Padding(padding: EdgeInsets.only(right: 16)),
                                   TextButton(
                                       onPressed: () {},
-                                      child: Icon(Icons.send, color: Colors.white, size: 16,),
+                                      child: Icon(
+                                        Icons.send,
+                                        color: Colors.white,
+                                        size: 16,
+                                      ),
                                       style: ButtonStyle(
-                                          backgroundColor: MaterialStateProperty.all(Colors.indigo),
+                                          backgroundColor:
+                                              MaterialStateProperty.all(
+                                                  Colors.indigo),
                                           shape: MaterialStateProperty.all<
-                                              RoundedRectangleBorder>(
+                                                  RoundedRectangleBorder>(
                                               RoundedRectangleBorder(
-                                                borderRadius:
-                                                BorderRadius.circular(
-                                                    16),
-                                              )))),
+                                            borderRadius:
+                                                BorderRadius.circular(16),
+                                          )))),
                                 ],
                               )
                             ],
@@ -87,5 +103,14 @@ class UserProfile extends StatelessWidget {
             );
           }),
     );
+  }
+
+  getAvatarWidget(String downloadURL) {
+    if (downloadURL == "") {
+      return CircleAvatar(radius: 40, child: Icon(Icons.person));
+    } else {
+      return CircleAvatar(
+          radius: 60, backgroundImage: NetworkImage(downloadURL));
+    }
   }
 }

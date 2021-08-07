@@ -49,7 +49,6 @@ class _EventAddWidgetState extends State<EventAddWidget> {
       body: SafeArea(
         child: Column(
           children: [
-            //TODO сделать кнопку назад
             IconStepper(
               icons: [
                 Icon(Icons.description_outlined),
@@ -83,8 +82,17 @@ class _EventAddWidgetState extends State<EventAddWidget> {
   Widget descriptionWidget() {
     return Scaffold(
       bottomNavigationBar: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          TextButton(
+            onPressed: () {
+             Navigator.pop(context);
+            },
+            child: Text(
+              "Выход",
+              style: TextStyle(color: Color(0xFF2A41CB), fontSize: 15),
+            ),
+          ),
           TextButton(
             onPressed: () {
               setState(() {
@@ -111,6 +119,7 @@ class _EventAddWidgetState extends State<EventAddWidget> {
             ),
             Padding(padding: EdgeInsets.all(5)),
             TextFormField(
+              initialValue: newEvent.eventName,
               textInputAction: TextInputAction.next,
               decoration: new InputDecoration(
                   border: OutlineInputBorder(), labelText: "Название"),
@@ -128,6 +137,7 @@ class _EventAddWidgetState extends State<EventAddWidget> {
             ),
             Padding(padding: EdgeInsets.all(5)),
             TextFormField(
+              initialValue: newEvent.eventDescription,
               keyboardType: TextInputType.multiline,
               textInputAction: TextInputAction.next,
               maxLines: null,
@@ -147,6 +157,9 @@ class _EventAddWidgetState extends State<EventAddWidget> {
             ),
             Padding(padding: EdgeInsets.all(5)),
             TextFormField(
+              initialValue: newEvent.peopleNumber == 0
+                  ? ""
+                  : newEvent.peopleNumber.toString(),
               keyboardType: TextInputType.number,
               textInputAction: TextInputAction.done,
               maxLines: null,
