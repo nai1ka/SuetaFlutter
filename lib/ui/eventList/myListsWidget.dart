@@ -21,7 +21,7 @@ class MyListsWidget extends StatefulWidget {
 
 class _MyListWidgetState extends State<MyListsWidget>
     with TickerProviderStateMixin {
-  TabController? mTabController;
+ late TabController mTabController;
   final PageController mPageController = PageController(initialPage: 0);
 
   @override
@@ -30,10 +30,10 @@ class _MyListWidgetState extends State<MyListsWidget>
       length: 2,
       vsync: this,
     );
-    mTabController!.addListener(() {
+    mTabController.addListener(() {
       //TabBar listener
-      if (mTabController!.indexIsChanging) {
-        onPageChange(mTabController!.index, p: mPageController);
+      if (mTabController.indexIsChanging) {
+        onPageChange(mTabController.index, p: mPageController);
       }
     });
   }
@@ -46,14 +46,14 @@ class _MyListWidgetState extends State<MyListsWidget>
           curve: Curves
               .ease); //Wait for pageview to switch, then release pageivew listener
     } else {
-      mTabController!.animateTo(index);
+      mTabController.animateTo(index);
     }
   }
 
   @override
   void dispose() {
     super.dispose();
-    mTabController!.dispose();
+    mTabController.dispose();
   }
 
   @override

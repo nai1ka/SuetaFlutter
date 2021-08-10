@@ -204,7 +204,9 @@ saveToFirestore(UserClass.User user, CollectionReference users,
     'city': user.city,
     "email": user.email,
     'friends': {},
-    'friendRequests':[]
+    'friendRequests':[],
+    'ownEvents':[],
+    'events':{}
   };
   return users
       .doc("${user.id}")

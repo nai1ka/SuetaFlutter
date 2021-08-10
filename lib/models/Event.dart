@@ -10,7 +10,9 @@ class Event {
   LatLng? eventPosition;
   int peopleNumber = 0;
   String id = "";
-  List<String> users = [];
+  Map<String,bool> users = {};
+  bool isCurrentUserOwner = false;
+  bool isAccepted = false;
 
 
 

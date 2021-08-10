@@ -5,7 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:test_flutter/models/CustomError.dart';
+import 'package:test_flutter/models/MethodResponse.dart';
 import 'package:test_flutter/models/Event.dart';
 import 'package:test_flutter/models/EventDescription.dart';
 
@@ -100,7 +100,7 @@ class Utils {
     return events;
   }
 
-  static Future<Event> getInfoAboutEvent(String id) async {
+  static Future<Event> getInfoAboutEvent(String id,[bool isAccepted = false]) async {
     var rawEvent = await firestore
         .collection("core")
         .doc("events")
@@ -119,7 +119,9 @@ class Utils {
       ..eventOwnerId = data["eventOwner"]
       ..peopleNumber = data["peopleNumber"]
       ..id = id
-      ..users = List.castFrom(data["users"]);
+      ..users = Map.castFrom(data["users"])
+      ..isCurrentUserOwner = data['eventOwner'] == auth.currentUser!.uid
+      ..isAccepted = isAccepted;
 
 
       return resultEvent;
@@ -132,16 +134,16 @@ class Utils {
 
   static Future<List<Event>> getUsersOwnEvents(String userId) async {
     List<Event> resultList = [];
-    Map<String,dynamic> requestsId = {};
+    List<dynamic> eventsId = [];
     await FirebaseFirestore.instance
         .collection("core")
         .doc("users")
         .collection("list")
         .doc(userId)
         .get()
-        .then((value) => requestsId = value.data()!["events"]);
-    for (var i in requestsId.entries) {
-      if(i.value == true) await getInfoAboutEvent(i.key).then((value) => resultList.add(value));
+        .then((value) => eventsId = value.data()!["ownEvents"]);
+    for (var i in eventsId) {
+      await getInfoAboutEvent(i).then((value) => resultList.add(value));
     }
     return resultList;
   }
@@ -157,7 +159,22 @@ class Utils {
         .get()
         .then((value) => requestsId = value.data()!["events"]);
     for (var i in requestsId.entries) {
-      if(i.value == false) await getInfoAboutEvent(i.key).then((value) => resultList.add(value));
+      await getInfoAboutEvent(i.key,i.value).then((value) => resultList.add(value));
+    }
+    return resultList;
+  }
+
+  static Future<List<UserClass.User>> getEventAcceptedGuests(Event event) async {
+    List<UserClass.User> resultList = [];
+    for(var i in event.users.entries){
+      if(i.value)await  getInfoAboutUser(i.key).then((value) => resultList.add(value));
+    }
+    return resultList;
+  }
+  static Future<List<UserClass.User>> getEventNotAcceptedGuests(Event event) async {
+    List<UserClass.User> resultList = [];
+    for(var i in event.users.entries){
+      if(!i.value)await  getInfoAboutUser(i.key).then((value) => resultList.add(value));
     }
     return resultList;
   }
@@ -214,8 +231,10 @@ class Utils {
     }
     return resultString;
   }
-  static getDateForDescription(DateTime date){
-    return "${humanizeDate(date)}, ${date.year} | ${date.hour}:${date.minute}";
+  static getDateForDescription(DateTime date, bool isUserAccepted){
+    if(isUserAccepted) return "${humanizeDate(date)}, ${date.year} | ${date.hour}:${date.minute}";
+    else  return "${humanizeDate(date)}, ${date.year}";
+
 
   }
 
@@ -247,17 +266,17 @@ class Utils {
               longitude: event.eventPosition!.longitude)
           .data,
       'peopleNumber': event.peopleNumber,
-      'users': []
+      'users': {}
     }).then((value) =>
-        userListReference.doc(auth.currentUser!.uid).update({"events": {value.id:true}
+        userListReference.doc(auth.currentUser!.uid).update({"ownEvents": [value.id]
         }));
   }
 
   static deleteEvent(Event event){
     try{
       eventsReference.doc(event.id).delete();
-      event.users.forEach((element) {
-        userListReference.doc(element).update({
+      event.users.forEach((key,value) {
+        userListReference.doc(key).update({
           "events.${event.id}":
           FieldValue.delete()
         });
@@ -278,7 +297,7 @@ class Utils {
   static addUserAsGuest(String eventID){
     try {
       eventsReference.doc(eventID).set({
-        "users": [auth.currentUser?.uid]
+        "users": {auth.currentUser?.uid:false}
       }, SetOptions(merge: true));
       //Добавление данных в field users в документе events
       userListReference.doc(auth.currentUser!.uid).update(
@@ -292,7 +311,7 @@ class Utils {
   }
 
   static bool checkIfUserAlreadyRegisteredInEvent(Event event){
-    return event.users.contains(auth.currentUser!.uid) || event.eventOwnerId==auth.currentUser!.uid;
+    return event.users.containsKey(auth.currentUser!.uid) || event.isCurrentUserOwner;
   }
   static Future<EventDescription> getEventDescription(String eventId) async{
     var event = await getInfoAboutEvent(eventId);
@@ -303,6 +322,7 @@ class Utils {
   }
 
   static Future<MethodResponse> sendFriendsRequest(String friendId) async{
+
     try {
      var currentUser =  await getInfoAboutUser(auth.currentUser!.uid);
      if(currentUser.friends.containsKey(friendId)) return MethodResponse(true,"Этот пользователь уже у вас в друзьях");
@@ -317,6 +337,7 @@ class Utils {
     }
     catch (e){
       return MethodResponse(true,e.toString());
+      //TODO сделать обработчик исключений, чтобы по-красоте всё было :)
     }
   }
   static changeAvatarImage(File file) async{
@@ -341,6 +362,18 @@ class Utils {
     }
     return downloadURL;
 
+  }
+  static getAvatarWidget(String downloadURL, double radius) {
+    if (downloadURL == "") {
+      return CircleAvatar(
+          radius: radius,
+          child: Icon(Icons.person));
+    }
+    else {
+      return CircleAvatar(
+          radius: radius,
+          backgroundImage: NetworkImage(downloadURL));
+    }
   }
 
 //var resultUser = User(rawUser.["name"], rawUser["name"], city, email)

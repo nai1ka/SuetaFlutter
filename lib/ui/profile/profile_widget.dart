@@ -84,19 +84,17 @@ class _ProfileWidgetState extends State<ProfileWidget>
                             children: [
                               InkWell(
                                   onTap: () async {
-                                    var image =
-                                    await ImagePicker().pickImage(
-                                        source: ImageSource.gallery);
+                                    var image = await ImagePicker()
+                                        .pickImage(source: ImageSource.gallery);
                                     if (image != null) {
                                       Utils.changeAvatarImage(File(image.path));
                                       setState(() {
                                         newAvatar = image.path;
                                       });
-
-                                    };
+                                    }
+                                    ;
                                   },
-                                  child: getAvatarWidget(user.avatarURL)
-                              )
+                                  child: getAvatarWidget(user.avatarURL))
                             ],
                           ),
                           Padding(padding: EdgeInsets.only(bottom: 10)),
@@ -109,17 +107,6 @@ class _ProfileWidgetState extends State<ProfileWidget>
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              /*FlatButton(
-                                onPressed: () {},
-                                color: Color(0xFFEAEAEA),
-                                child: Icon(
-                                  Icons.settings,
-                                  size: 24,
-                                  color: Color(0xFF282828),
-                                ),
-                                padding: EdgeInsets.all(2),
-                                shape: CircleBorder(),
-                              ),*/
                               FlatButton(
                                 onPressed: () {},
                                 color: Color(0xFFEAEAEA),
@@ -138,7 +125,7 @@ class _ProfileWidgetState extends State<ProfileWidget>
                                       MaterialPageRoute(
                                           builder: (context) =>
                                               RegistrationWidget()),
-                                          (Route<dynamic> route) => false);
+                                      (Route<dynamic> route) => false);
                                 },
                                 color: Color(0xFFEAEAEA),
                                 child: Icon(
@@ -165,11 +152,10 @@ class _ProfileWidgetState extends State<ProfileWidget>
                               child: Text("Добавить друзей"),
                               style: ButtonStyle(
                                   shape: MaterialStateProperty.all<
-                                      RoundedRectangleBorder>(
+                                          RoundedRectangleBorder>(
                                       RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(
-                                            10.0),
-                                      ))),
+                                borderRadius: BorderRadius.circular(10.0),
+                              ))),
                             ),
                           ),
                           Divider(
@@ -177,38 +163,35 @@ class _ProfileWidgetState extends State<ProfileWidget>
                           ),
                           Expanded(
                               child: Column(
-                                children: [
-                                  Container(
-                                    color: new Color(0xfff4f5f6),
-                                    height: 38.0,
-                                    child: TabBar(
-                                      unselectedLabelColor: Colors.black54,
-                                      indicatorSize: TabBarIndicatorSize.tab,
-                                      indicator: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(
-                                              8),
-                                          color: Theme
-                                              .of(context)
-                                              .primaryColor),
-                                      controller: mTabController,
-                                      tabs: ["Друзья", "Заявки"].map((item) {
-                                        return Tab(
-                                          text: item,
-                                        );
-                                      }).toList(),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: PageView(
-                                      controller: mPageController,
-                                      children: [
-                                        friendsFuture(user),
-                                        requestsFuture(user),
-                                      ],
-                                    ),
-                                  )
-                                ],
-                              ))
+                            children: [
+                              Container(
+                                color: new Color(0xfff4f5f6),
+                                height: 38.0,
+                                child: TabBar(
+                                  unselectedLabelColor: Colors.black54,
+                                  indicatorSize: TabBarIndicatorSize.tab,
+                                  indicator: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(8),
+                                      color: Theme.of(context).primaryColor),
+                                  controller: mTabController,
+                                  tabs: ["Друзья", "Заявки"].map((item) {
+                                    return Tab(
+                                      text: item,
+                                    );
+                                  }).toList(),
+                                ),
+                              ),
+                              Expanded(
+                                child: PageView(
+                                  controller: mPageController,
+                                  children: [
+                                    friendsFuture(user),
+                                    requestsFuture(user),
+                                  ],
+                                ),
+                              )
+                            ],
+                          ))
                         ],
                       ),
                     );
@@ -226,7 +209,13 @@ class _ProfileWidgetState extends State<ProfileWidget>
             customBorder: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(26.0),
             ),
-            onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => UserProfile(friendsSnap.data![index].id)));},
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          UserProfile(friendsSnap.data![index].id)));
+            },
             child: Card(
               color: Color(0xFFFBF1A3),
               shape: RoundedRectangleBorder(
@@ -236,7 +225,8 @@ class _ProfileWidgetState extends State<ProfileWidget>
                 padding: EdgeInsets.all(10.0),
                 child: Row(
                   children: [
-                    getSmallAvatarWidget(friendsSnap.data![index].avatarURL),
+                    Utils.getAvatarWidget(
+                        friendsSnap.data![index].avatarURL, 20),
                     Padding(padding: EdgeInsets.only(right: 5)),
                     Text(
                       "${friendsSnap.data![index].name}",
@@ -271,9 +261,9 @@ class _ProfileWidgetState extends State<ProfileWidget>
           }
           return const Center(
               child: Text(
-                "Ошибка загрузки. Попробуйте ещё раз",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ));
+            "Ошибка загрузки. Попробуйте ещё раз",
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ));
         });
   }
 
@@ -288,7 +278,13 @@ class _ProfileWidgetState extends State<ProfileWidget>
             customBorder: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(26.0),
             ),
-            onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => UserProfile(requestsData[index].id)));},
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          UserProfile(requestsData[index].id)));
+            },
             child: Card(
               color: const Color(0xFFFBF1A3),
               shape: RoundedRectangleBorder(
@@ -298,7 +294,7 @@ class _ProfileWidgetState extends State<ProfileWidget>
                 padding: const EdgeInsets.all(10.0),
                 child: Row(
                   children: [
-                    getSmallAvatarWidget(requestsData[index].avatarURL),
+                    Utils.getAvatarWidget(requestsData[index].avatarURL, 20),
                     Padding(padding: EdgeInsets.only(right: 5)),
                     Text(
                       requestsData[index].name,
@@ -312,7 +308,7 @@ class _ProfileWidgetState extends State<ProfileWidget>
                           //Удаление пользоователя из списка входящих запросов на дружбу
                           userListReference.doc(auth.currentUser!.uid).update({
                             "friendRequests":
-                            FieldValue.arrayRemove([requestsData[index].id])
+                                FieldValue.arrayRemove([requestsData[index].id])
                           });
                           //Добавление пользователя в список друзей у обоих пользователей
                           userListReference.doc(auth.currentUser!.uid).update({
@@ -330,12 +326,12 @@ class _ProfileWidgetState extends State<ProfileWidget>
                         //Удаление пользоователя из списка входящих запросов на дружбу
                         userListReference.doc(auth.currentUser!.uid).update({
                           "friendRequests":
-                          FieldValue.arrayRemove([requestsData[index].id])
+                              FieldValue.arrayRemove([requestsData[index].id])
                         });
                         //Удаление пользователя из списка исходящих запросов на дружбу
                         userListReference.doc(requestsData[index].id).update({
                           "friends.${auth.currentUser!.uid}":
-                          FieldValue.delete()
+                              FieldValue.delete()
                         });
                       },
                     ),
@@ -382,37 +378,16 @@ class _ProfileWidgetState extends State<ProfileWidget>
   getAvatarWidget(String downloadURL) {
     if (newAvatar == "") {
       if (downloadURL == "") {
+        return CircleAvatar(radius: 60, child: Icon(Icons.person));
+      } else {
         return CircleAvatar(
-            radius: 60,
-            child: Icon(Icons.person));
+            radius: 60, backgroundImage: NetworkImage(downloadURL));
       }
-      else {
-        return CircleAvatar(
-            radius: 60,
-            backgroundImage: NetworkImage(downloadURL));
-      }
-    }
-    else {
+    } else {
       var newAvatarWidget =
-      CircleAvatar(
-          radius: 60,
-          backgroundImage: FileImage(File(newAvatar)));
+          CircleAvatar(radius: 60, backgroundImage: FileImage(File(newAvatar)));
       newAvatar = "";
       return newAvatarWidget;
-    }
-  }
-
-
-  getSmallAvatarWidget(String downloadURL) {
-    if (downloadURL == "") {
-      return CircleAvatar(
-          radius: 20,
-          child: Icon(Icons.person));
-    }
-    else {
-      return CircleAvatar(
-          radius: 20,
-          backgroundImage: NetworkImage(downloadURL));
     }
   }
 }

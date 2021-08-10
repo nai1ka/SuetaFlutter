@@ -10,6 +10,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:test_flutter/core/Utils.dart';
 import 'package:test_flutter/models/Event.dart';
 import 'package:test_flutter/models/EventDescription.dart';
+import 'package:test_flutter/ui/eventInfo/guests_info.dart';
 import 'package:test_flutter/ui/profile/user_profile.dart';
 
 final firebase = FirebaseFirestore.instance
@@ -58,11 +59,21 @@ class _EventInfoWidgetState extends State<EventInfoWidget> {
           return Scaffold(
             appBar: AppBar(
               backgroundColor: Colors.amber,
-                elevation: 0.0,
-                bottomOpacity: 0.0,
-              leading: BackButton(),
+
+              title: event.isCurrentUserOwner ?Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+
+                children: [
+                  IconButton(
+                      onPressed: () {
+                        Navigator.of(context).push(MaterialPageRoute(builder: (context)=>GuestInfoWidget(event.id)));
+                      },
+                      icon: Icon(Icons.supervised_user_circle_outlined)),
+                ],
+              ) : null,
             ),
             bottomNavigationBar: getConfirmButton(event),
+            //TODO сделать статус для гостя (принята заявка, отклонена или на рассмотрении)
             body: SafeArea(
               child: SingleChildScrollView(
                 child: Container(
@@ -85,7 +96,7 @@ class _EventInfoWidgetState extends State<EventInfoWidget> {
                             SizedBox(
                               width: 4,
                             ),
-                            Text(Utils.getDateForDescription(event.eventDate))
+                            Text(Utils.getDateForDescription(event.eventDate, event.isAccepted|event.isCurrentUserOwner))
                           ],
                         ),
                         /*Row(
@@ -117,20 +128,19 @@ class _EventInfoWidgetState extends State<EventInfoWidget> {
                         Padding(padding: EdgeInsets.only(bottom: 8)),
                         InkWell(
                           onTap: () {
-                            if(user.id!= auth.currentUser!.uid)
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        UserProfile(user.id)));
-                            else{
+                            if (user.id != auth.currentUser!.uid)
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          UserProfile(user.id)));
+                            else {
                               Fluttertoast.showToast(
                                   msg: "Это же вы :)",
                                   toastLength: Toast.LENGTH_SHORT,
                                   gravity: ToastGravity.BOTTOM,
                                   timeInSecForIosWeb: 1,
-                                  fontSize: 16.0
-                              );
+                                  fontSize: 16.0);
                             }
                           },
                           child: Container(
@@ -189,8 +199,7 @@ class _EventInfoWidgetState extends State<EventInfoWidget> {
   }
 
   getConfirmButton(Event event) {
-    var isClickable = true;
-    if (Utils.checkIfUserAlreadyRegisteredInEvent(event)) isClickable = false;
+    var isClickable = !Utils.checkIfUserAlreadyRegisteredInEvent(event);
     if (isClickable) {
       return Container(
         width: double.infinity,
