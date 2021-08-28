@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:276945936302:android:c2857b51fa28662f77b23f",
+        "mobilesdk_app_id": "1:276945936302:android:7397fab69da9772477b23f",
         "android_client_info": {
-          "package_name": "ru.ndevelop.test_flutter"
+          "package_name": "ru.nandm.sueta"
         }
       },
       "oauth_client": [
@@ -29,6 +29,13 @@
             {
               "client_id": "276945936302-0pa22j9v7oj8875t17ntff06oplnbjl4.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "276945936302-318u2l2cr0qheqm1tetn84tvevmf14c3.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "ru.ndevelop.testFlutter"
+              }
             }
           ]
         }

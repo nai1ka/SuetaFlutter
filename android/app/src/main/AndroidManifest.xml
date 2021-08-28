@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="ru.ndevelop.test_flutter">
+    package="ru.nandm.sueta">
    <application
         android:label="test_flutter"
         android:icon="@mipmap/ic_launcher">

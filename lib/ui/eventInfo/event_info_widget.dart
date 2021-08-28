@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cool_alert/cool_alert.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -60,13 +61,14 @@ class _EventInfoWidgetState extends State<EventInfoWidget> {
             appBar: AppBar(
               backgroundColor: Colors.amber,
 
-              title: event.isCurrentUserOwner ?Row(
+              title: event.isCurrentUserOwner ? Row(
                 mainAxisAlignment: MainAxisAlignment.end,
 
                 children: [
                   IconButton(
                       onPressed: () {
-                        Navigator.of(context).push(MaterialPageRoute(builder: (context)=>GuestInfoWidget(event.id)));
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => GuestInfoWidget(event.id)));
                       },
                       icon: Icon(Icons.supervised_user_circle_outlined)),
                 ],
@@ -96,7 +98,8 @@ class _EventInfoWidgetState extends State<EventInfoWidget> {
                             SizedBox(
                               width: 4,
                             ),
-                            Text(Utils.getDateForDescription(event.eventDate, event.isAccepted|event.isCurrentUserOwner))
+                            Text(Utils.getDateForDescription(event.eventDate,
+                                event.isAccepted | event.isCurrentUserOwner))
                           ],
                         ),
                         /*Row(
@@ -107,7 +110,8 @@ class _EventInfoWidgetState extends State<EventInfoWidget> {
                   )*/
                         Padding(padding: EdgeInsets.only(bottom: 10)),
                         Text(
-                            "Ещё не хватает ${event.peopleNumber - event.users.length} гостей"),
+                            "Ещё не хватает ${event.peopleNumber -
+                                event.users.length} гостей"),
                         Divider(
                           thickness: 2,
                           height: 16,
@@ -120,6 +124,7 @@ class _EventInfoWidgetState extends State<EventInfoWidget> {
                         Padding(padding: EdgeInsets.only(bottom: 8)),
                         Text(event.eventDescription),
                         Padding(padding: EdgeInsets.only(bottom: 8)),
+                       getImageSlider(event),
                         Text(
                           "Проводит:",
                           style: TextStyle(
@@ -171,7 +176,10 @@ class _EventInfoWidgetState extends State<EventInfoWidget> {
                           borderRadius: BorderRadius.all(Radius.circular(10)),
                           child: Container(
                             height: 200,
-                            width: MediaQuery.of(context).size.width,
+                            width: MediaQuery
+                                .of(context)
+                                .size
+                                .width,
                             child: GoogleMap(
                               markers: Set.from([
                                 Marker(
@@ -237,8 +245,8 @@ class _EventInfoWidgetState extends State<EventInfoWidget> {
           style: ButtonStyle(
               shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                   RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18.0),
-          ))),
+                    borderRadius: BorderRadius.circular(18.0),
+                  ))),
         ),
       );
     } else {
@@ -252,9 +260,50 @@ class _EventInfoWidgetState extends State<EventInfoWidget> {
           style: ButtonStyle(
               shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                   RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18.0),
-          ))),
+                    borderRadius: BorderRadius.circular(18.0),
+                  ))),
         ),
+      );
+    }
+  }
+
+  Widget getImageSlider(Event event) {
+    if (event.imageURLs.isEmpty)
+      return Container();
+    else {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Фотографии",
+            style: TextStyle(
+                fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          Center(
+            child: CarouselSlider(
+              options: CarouselOptions(height: 200.0,enableInfiniteScroll: false),
+              items: event.imageURLs.map((i) {
+                return Builder(
+
+                  builder: (BuildContext context) {
+                    return Container(
+                        width: MediaQuery
+                            .of(context)
+                            .size
+                            .width,
+                        margin: EdgeInsets.symmetric(horizontal: 5.0),
+                        decoration: BoxDecoration(
+                            color: Colors.transparent
+                        ),
+                        child: Image.network(i)
+                    );
+                  },
+                );
+              }).toList(),
+            ),
+          )
+
+        ],
       );
     }
   }

@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -8,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:im_stepper/stepper.dart';
+import 'package:image_picker/image_picker.dart';
 
 import 'package:test_flutter/core/Utils.dart';
 import 'package:test_flutter/models/Event.dart';
@@ -30,6 +33,7 @@ class EventAddWidget extends StatefulWidget {
 
 class _EventAddWidgetState extends State<EventAddWidget> {
   int activeStep = 0; // Initial step set to 5.
+  List<File> carouselItems = [];
 
   @override
   void initState() {
@@ -52,6 +56,7 @@ class _EventAddWidgetState extends State<EventAddWidget> {
             IconStepper(
               icons: [
                 Icon(Icons.description_outlined),
+                Icon(Icons.image),
                 Icon(Icons.map),
               ],
               enableNextPreviousButtons: false,
@@ -66,7 +71,6 @@ class _EventAddWidgetState extends State<EventAddWidget> {
                 });
               },
             ),
-
             Expanded(
               child: Container(
                 padding: EdgeInsets.all(10),
@@ -86,7 +90,7 @@ class _EventAddWidgetState extends State<EventAddWidget> {
         children: [
           TextButton(
             onPressed: () {
-             Navigator.pop(context);
+              Navigator.pop(context);
             },
             child: Text(
               "Выход",
@@ -280,7 +284,7 @@ class _EventAddWidgetState extends State<EventAddWidget> {
               onPressed: () {
                 setState(() {
                   if (Utils.checkEvent(newEvent)) {
-                    Utils.saveEventToFirebase(newEvent);
+                    Utils.saveEventToFirebase(newEvent,carouselItems);
                     Navigator.pop(context, true);
                   } else {
                     Fluttertoast.showToast(
@@ -296,6 +300,85 @@ class _EventAddWidgetState extends State<EventAddWidget> {
                 style: TextStyle(color: Color(0xFF2A41CB), fontSize: 15),
               ),
             )
+          ],
+        )
+      ],
+    );
+  }
+
+  Widget imagesPickerWidget() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Center(child: Text("Добавьте фотографии места проведения\n")),
+        Text("(Желательно)"),
+        CarouselSlider(
+          options: CarouselOptions(height: 200.0, enableInfiniteScroll: false),
+          items: ([
+            ...carouselItems,
+            ...[
+              Container(
+                child: InkWell(
+                  child: Icon(Icons.add),
+                  onTap: () async {
+                    var image = await ImagePicker()
+                        .pickImage(source: ImageSource.gallery);
+                    if (image != null) {
+                      setState(() {
+                        carouselItems.insert(0, File(image.path));
+                      });
+                    }
+                    ;
+                  },
+                ),
+              )
+            ]
+          ]).map((i) {
+            return Builder(
+              builder: (BuildContext context) {
+                if (i is Widget)
+                  return Container(
+                      width: MediaQuery.of(context).size.width,
+                      margin: EdgeInsets.symmetric(horizontal: 5.0),
+                      decoration: BoxDecoration(color: Colors.transparent),
+                      child: i);
+                else {
+                  return Container(
+                      width: MediaQuery.of(context).size.width,
+                      margin: EdgeInsets.symmetric(horizontal: 5.0),
+                      decoration: BoxDecoration(color: Colors.transparent),
+                      child: Image.file(i as File));
+                }
+              },
+            );
+          }).toList(),
+        ),
+        Spacer(),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  activeStep--;
+                });
+              },
+              child: Text(
+                "Назад",
+                style: TextStyle(color: Color(0xFF2A41CB), fontSize: 15),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  activeStep++;
+                });
+              },
+              child: Text(
+                "Далее",
+                style: TextStyle(color: Color(0xFF2A41CB), fontSize: 15),
+              ),
+            ),
           ],
         )
       ],
@@ -352,6 +435,9 @@ class _EventAddWidgetState extends State<EventAddWidget> {
         resultWidget = descriptionWidget();
         break;
       case 1:
+        resultWidget = imagesPickerWidget();
+        break;
+      case 2:
         resultWidget = mapWidget();
         break;
     }

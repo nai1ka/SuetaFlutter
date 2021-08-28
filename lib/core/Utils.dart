@@ -16,8 +16,7 @@ class Utils {
   static final Utils _singleton = Utils._internal();
   static final FirebaseAuth auth = FirebaseAuth.instance;
   static final firestore = FirebaseFirestore.instance;
-  static final storage =
-      FirebaseStorage.instance;
+  static final storage = FirebaseStorage.instance;
   static final eventsReference = FirebaseFirestore.instance
       .collection('core')
       .doc("events")
@@ -43,8 +42,7 @@ class Utils {
       var resultUser = UserClass.User(data["name"], data["age"], data["city"])
         ..friends = Map.castFrom(data["friends"])
         ..id = id;
-      await getAvatarsURL(id).then((value) =>
-      resultUser.avatarURL =  value);
+      await getAvatarsURL(id).then((value) => resultUser.avatarURL = value);
       return resultUser;
     }
     throw "No such user";
@@ -90,17 +88,19 @@ class Utils {
     return resultList;
   }
 
-   static Future<List<Event>> getEventsFromSnapshot(AsyncSnapshot<QuerySnapshot> snapshot) async{
+  static Future<List<Event>> getEventsFromSnapshot(
+      AsyncSnapshot<QuerySnapshot> snapshot) async {
     List<Event> events = <Event>[];
     if (snapshot.hasData)
       for (int i = 0; i < snapshot.data!.docs.length; i++) {
-        await getInfoAboutEvent(snapshot.data!.docs[i].id).then((value) =>
-            events.add(value));
+        await getInfoAboutEvent(snapshot.data!.docs[i].id)
+            .then((value) => events.add(value));
       }
     return events;
   }
 
-  static Future<Event> getInfoAboutEvent(String id,[bool isAccepted = false]) async {
+  static Future<Event> getInfoAboutEvent(String id,
+      [bool isAccepted = false]) async {
     var rawEvent = await firestore
         .collection("core")
         .doc("events")
@@ -109,20 +109,20 @@ class Utils {
         .get();
     if (rawEvent.exists) {
       var data = rawEvent.data()!;
-      GeoPoint tempGeoPoint =
-      data["eventPosition"]["geopoint"] as GeoPoint;
-      var resultEvent = Event()..eventName = data["eventName"]
-      ..eventDescription = data["eventDescription"]
-        ..eventPosition =
-        LatLng(tempGeoPoint.latitude, tempGeoPoint.longitude)
+      GeoPoint tempGeoPoint = data["eventPosition"]["geopoint"] as GeoPoint;
+      var resultEvent = Event()
+        ..eventName = data["eventName"]
+        ..eventDescription = data["eventDescription"]
+        ..eventPosition = LatLng(tempGeoPoint.latitude, tempGeoPoint.longitude)
         ..eventDate = (data["eventDate"] as Timestamp).toDate()
-      ..eventOwnerId = data["eventOwner"]
-      ..peopleNumber = data["peopleNumber"]
-      ..id = id
-      ..users = Map.castFrom(data["users"])
-      ..isCurrentUserOwner = data['eventOwner'] == auth.currentUser!.uid
-      ..isAccepted = isAccepted;
-
+        ..eventOwnerId = data["eventOwner"]
+        ..peopleNumber = data["peopleNumber"]
+        ..id = id
+        ..users = Map.castFrom(data["users"])
+        ..isCurrentUserOwner = data['eventOwner'] == auth.currentUser!.uid
+        ..isAccepted = isAccepted;
+      await getEventImagesURLs(id)
+          .then((value) => resultEvent.imageURLs = value);
 
       return resultEvent;
     }
@@ -150,7 +150,7 @@ class Utils {
 
   static Future<List<Event>> getUsersAvailableEvents(String userId) async {
     List<Event> resultList = [];
-    Map<String,dynamic> requestsId = {};
+    Map<String, dynamic> requestsId = {};
     await FirebaseFirestore.instance
         .collection("core")
         .doc("users")
@@ -159,22 +159,28 @@ class Utils {
         .get()
         .then((value) => requestsId = value.data()!["events"]);
     for (var i in requestsId.entries) {
-      await getInfoAboutEvent(i.key,i.value).then((value) => resultList.add(value));
+      await getInfoAboutEvent(i.key, i.value)
+          .then((value) => resultList.add(value));
     }
     return resultList;
   }
 
-  static Future<List<UserClass.User>> getEventAcceptedGuests(Event event) async {
+  static Future<List<UserClass.User>> getEventAcceptedGuests(
+      Event event) async {
     List<UserClass.User> resultList = [];
-    for(var i in event.users.entries){
-      if(i.value)await  getInfoAboutUser(i.key).then((value) => resultList.add(value));
+    for (var i in event.users.entries) {
+      if (i.value)
+        await getInfoAboutUser(i.key).then((value) => resultList.add(value));
     }
     return resultList;
   }
-  static Future<List<UserClass.User>> getEventNotAcceptedGuests(Event event) async {
+
+  static Future<List<UserClass.User>> getEventNotAcceptedGuests(
+      Event event) async {
     List<UserClass.User> resultList = [];
-    for(var i in event.users.entries){
-      if(!i.value)await  getInfoAboutUser(i.key).then((value) => resultList.add(value));
+    for (var i in event.users.entries) {
+      if (!i.value)
+        await getInfoAboutUser(i.key).then((value) => resultList.add(value));
     }
     return resultList;
   }
@@ -231,11 +237,12 @@ class Utils {
     }
     return resultString;
   }
-  static getDateForDescription(DateTime date, bool isUserAccepted){
-    if(isUserAccepted) return "${humanizeDate(date)}, ${date.year} | ${date.hour}:${date.minute}";
-    else  return "${humanizeDate(date)}, ${date.year}";
 
-
+  static getDateForDescription(DateTime date, bool isUserAccepted) {
+    if (isUserAccepted)
+      return "${humanizeDate(date)}, ${date.year} | ${date.hour}:${date.minute}";
+    else
+      return "${humanizeDate(date)}, ${date.year}";
   }
 
   static DateTime changeTime(DateTime dateTime, TimeOfDay timeOfDay) {
@@ -254,126 +261,138 @@ class Utils {
         event.eventPosition != null;
   }
 
-  static saveEventToFirebase(Event event) {
-    eventsReference.add({
-      'eventDate': event.eventDate,
-      'eventName': event.eventName,
-      'eventDescription': event.eventDescription,
-      'eventOwner': event.eventOwnerId,
-      'eventPosition': geo
-          .point(
-              latitude: event.eventPosition!.latitude,
-              longitude: event.eventPosition!.longitude)
-          .data,
-      'peopleNumber': event.peopleNumber,
-      'users': {}
-    }).then((value) =>
-        userListReference.doc(auth.currentUser!.uid).update({"ownEvents": [value.id]
-        }));
-  }
-
-  static deleteEvent(Event event){
-    try{
-      eventsReference.doc(event.id).delete();
-      event.users.forEach((key,value) {
-        userListReference.doc(key).update({
-          "events.${event.id}":
-          FieldValue.delete()
-        });
-
-      });
-      userListReference.doc(event.eventOwnerId).update({
-        "events.${event.id}":
-        FieldValue.delete()
-      });
-      return true;
-    }
-    catch(e){
-      return false;
-    }
-
-  }
-
-  static addUserAsGuest(String eventID){
+  static saveEventToFirebase(Event event, List<File> imagesFiles) async {
     try {
-      eventsReference.doc(eventID).set({
-        "users": {auth.currentUser?.uid:false}
-      }, SetOptions(merge: true));
-      //Добавление данных в field users в документе events
-      userListReference.doc(auth.currentUser!.uid).update(
-          {"events": {eventID: false}});
-      //Добавление данных в field events в документе users (false, потому что гость - пользователь)
-      return true;
-    }
-    catch (e) {
-      return false;
-    }
-  }
-
-  static bool checkIfUserAlreadyRegisteredInEvent(Event event){
-    return event.users.containsKey(auth.currentUser!.uid) || event.isCurrentUserOwner;
-  }
-  static Future<EventDescription> getEventDescription(String eventId) async{
-    var event = await getInfoAboutEvent(eventId);
-    var user = await getInfoAboutUser(event.eventOwnerId);
-
-    return EventDescription(event,user);
-
-  }
-
-  static Future<MethodResponse> sendFriendsRequest(String friendId) async{
-
-    try {
-     var currentUser =  await getInfoAboutUser(auth.currentUser!.uid);
-     if(currentUser.friends.containsKey(friendId)) return MethodResponse(true,"Этот пользователь уже у вас в друзьях");
-      userListReference.doc(auth.currentUser!.uid).update({
-        "friends": {friendId: false}
+      var docRef = await eventsReference.add({
+        'eventDate': event.eventDate,
+        'eventName': event.eventName,
+        'eventDescription': event.eventDescription,
+        'eventOwner': event.eventOwnerId,
+        'eventPosition': geo
+            .point(
+                latitude: event.eventPosition!.latitude,
+                longitude: event.eventPosition!.longitude)
+            .data,
+        'peopleNumber': event.peopleNumber,
+        'users': {}
       });
-      userListReference.doc(friendId).update({
-        "friendRequests":
-        FieldValue.arrayUnion([auth.currentUser!.uid])
+      await userListReference.doc(auth.currentUser!.uid).update({
+        "ownEvents": FieldValue.arrayUnion([docRef.id])
       });
-      return MethodResponse(false);
-    }
-    catch (e){
-      return MethodResponse(true,e.toString());
-      //TODO сделать обработчик исключений, чтобы по-красоте всё было :)
-    }
-  }
-  static changeAvatarImage(File file) async{
-    try {
-      await storage
-          .ref('avatars/${auth.currentUser!.uid}.png')
-          .putFile(file);
+
+      for (int i = 0; i < imagesFiles.length; i++) {
+        await storage
+            .ref('events/${docRef.id}/${imagesFiles[i].path.split('/').last}')
+            .putFile(imagesFiles[i]);
+      }
     } on FirebaseException catch (e) {
       // e.g, e.code == 'canceled'
     }
   }
 
-  static Future<String> getAvatarsURL(String userId) async{
-    var downloadURL = "";
-    try{
-      downloadURL = await storage
-          .ref('avatars/${userId}.png')
-          .getDownloadURL();
-    }
-    catch(e){
+  static deleteEvent(Event event) {
+    try {
+      eventsReference.doc(event.id).delete();
+      event.users.forEach((key, value) {
+        userListReference
+            .doc(key)
+            .update({"events.${event.id}": FieldValue.delete()});
+      });
+      userListReference.doc(event.eventOwnerId).update({
+        "ownEvents": FieldValue.arrayRemove([event.id])
+      });
+      //TODO удалять данные и из storage
 
+      return true;
+    } catch (e) {
+      return false;
     }
-    return downloadURL;
-
   }
+
+  static addUserAsGuest(String eventID) {
+    try {
+      eventsReference.doc(eventID).set({
+        "users": {auth.currentUser?.uid: false}
+      }, SetOptions(merge: true));
+      //Добавление данных в field users в документе events
+      userListReference.doc(auth.currentUser!.uid).update({
+        "events": {eventID: false}
+      });
+      //Добавление данных в field events в документе users (false, потому что гость - пользователь)
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  static bool checkIfUserAlreadyRegisteredInEvent(Event event) {
+    return event.users.containsKey(auth.currentUser!.uid) ||
+        event.isCurrentUserOwner;
+  }
+
+  static Future<EventDescription> getEventDescription(String eventId) async {
+    var event = await getInfoAboutEvent(eventId);
+    var user = await getInfoAboutUser(event.eventOwnerId);
+
+    return EventDescription(event, user);
+  }
+
+  static Future<MethodResponse> sendFriendsRequest(String friendId) async {
+    try {
+      var currentUser = await getInfoAboutUser(auth.currentUser!.uid);
+      if (currentUser.friends.containsKey(friendId))
+        return MethodResponse(true, "Этот пользователь уже у вас в друзьях");
+      userListReference.doc(auth.currentUser!.uid).update({
+        "friends": {friendId: false}
+      });
+      userListReference.doc(friendId).update({
+        "friendRequests": FieldValue.arrayUnion([auth.currentUser!.uid])
+      });
+      return MethodResponse(false);
+    } catch (e) {
+      return MethodResponse(true, e.toString());
+      //TODO сделать обработчик исключений, чтобы по-красоте всё было :)
+    }
+  }
+
+  static changeAvatarImage(File file) async {
+    try {
+      await storage.ref('avatars/${auth.currentUser!.uid}.png').putFile(file);
+    } on FirebaseException catch (e) {
+      // e.g, e.code == 'canceled'
+    }
+  }
+
+  static Future<String> getAvatarsURL(String userId) async {
+    var downloadURL = "";
+    try {
+      downloadURL = await storage.ref('avatars/${userId}.png').getDownloadURL();
+    } catch (e) {}
+    return downloadURL;
+  }
+
   static getAvatarWidget(String downloadURL, double radius) {
     if (downloadURL == "") {
+      return CircleAvatar(radius: radius, child: Icon(Icons.person));
+    } else {
       return CircleAvatar(
-          radius: radius,
-          child: Icon(Icons.person));
+          radius: radius, backgroundImage: NetworkImage(downloadURL));
     }
-    else {
-      return CircleAvatar(
-          radius: radius,
-          backgroundImage: NetworkImage(downloadURL));
-    }
+  }
+
+  static Future<List<String>> getEventImagesURLs(String eventId) async {
+    List<String> eventImagesURLs = [];
+    try {
+      await storage
+          .ref('events/${eventId}')
+          .listAll()
+          .then((imagesListRef) => imagesListRef.items.forEach((element) {
+                element
+                    .getDownloadURL()
+                    .then((imageRef) => eventImagesURLs.add(imageRef));
+              }));
+    } catch (e) {}
+    return eventImagesURLs;
   }
 
 //var resultUser = User(rawUser.["name"], rawUser["name"], city, email)

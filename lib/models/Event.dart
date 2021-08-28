@@ -13,6 +13,8 @@ class Event {
   Map<String,bool> users = {};
   bool isCurrentUserOwner = false;
   bool isAccepted = false;
+  List<String> imageURLs = [];
+
 
 
 
