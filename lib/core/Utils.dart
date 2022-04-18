@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:test_flutter/models/ChatMessage.dart';
 import 'package:test_flutter/models/MethodResponse.dart';
 import 'package:test_flutter/models/Event.dart';
 import 'package:test_flutter/models/EventDescription.dart';
@@ -393,6 +394,18 @@ class Utils {
               }));
     } catch (e) {}
     return eventImagesURLs;
+  }
+
+
+  static List<ChatMessage> getMessageList(List<QueryDocumentSnapshot> snapshots){
+    List<ChatMessage> resultList  = [];
+    for(int i =0;i<snapshots.length;i++){
+      var _messageType = snapshots[i]["idFrom"]==auth.currentUser!.uid ? MessageTypes.sender : MessageTypes.receiver;
+      resultList.add(ChatMessage(snapshots[i]["text"], _messageType));
+    }
+    return resultList;
+
+
   }
 
 //var resultUser = User(rawUser.["name"], rawUser["name"], city, email)

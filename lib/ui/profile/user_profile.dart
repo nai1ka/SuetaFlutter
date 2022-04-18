@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:test_flutter/core/Utils.dart';
 import 'package:test_flutter/models/User.dart';
+import 'package:test_flutter/ui/chat/ChatActivity.dart';
 
 class UserProfile extends StatelessWidget {
   UserProfile(this.userId);
@@ -74,7 +75,13 @@ class UserProfile extends StatelessWidget {
                                           )))),
                                   Padding(padding: EdgeInsets.only(right: 16)),
                                   TextButton(
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    ChatActivity(peerId: this.userId,isGroupMode: false,)));
+                                      },
                                       child: Icon(
                                         Icons.send,
                                         color: Colors.white,

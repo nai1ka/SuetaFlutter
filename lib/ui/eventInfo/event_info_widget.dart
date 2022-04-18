@@ -11,6 +11,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:test_flutter/core/Utils.dart';
 import 'package:test_flutter/models/Event.dart';
 import 'package:test_flutter/models/EventDescription.dart';
+import 'package:test_flutter/ui/chat/ChatActivity.dart';
 import 'package:test_flutter/ui/eventInfo/guests_info.dart';
 import 'package:test_flutter/ui/profile/user_profile.dart';
 
@@ -255,8 +256,10 @@ class _EventInfoWidgetState extends State<EventInfoWidget> {
         height: 100,
         padding: EdgeInsets.all(20.0),
         child: ElevatedButton(
-          onPressed: null,
-          child: Text("Вы уже записаны!"),
+          onPressed: (){
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>ChatActivity(peerId: widget.eventId, isGroupMode: true)));
+          },
+          child: Text("Открыть чат"),
           style: ButtonStyle(
               shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                   RoundedRectangleBorder(

@@ -18,9 +18,10 @@ Future<void> main() async {
 
 class MyApp extends StatelessWidget {
 
-  void initializeFlutterFire() async {
+  void initializeDependencies() async {
     try {
       await Firebase.initializeApp();
+
     } catch (e) {}
   }
   Future<bool> isFirstTime() async {
@@ -41,7 +42,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    initializeFlutterFire();
+    initializeDependencies();
     return FutureBuilder(
       // Replace the 3 second delay with your initialization code:
       future: isLogged(),
