@@ -1,16 +1,7 @@
-# test_flutter
+### Sueta
 
-Test Fluter project
+It’s an application where users can add their events and invite other people to join them. 
 
-## Getting Started
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+![sueta_gif](https://user-images.githubusercontent.com/40440192/163865583-bf72370c-a7a2-4c42-93a7-b84984b0aad0.gif)
+![Screenshot_8](https://user-images.githubusercontent.com/40440192/163865588-177e68d2-d00d-49a1-9c25-b65eddf9f506.png)
